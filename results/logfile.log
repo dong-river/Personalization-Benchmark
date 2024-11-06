@@ -1,0 +1,20 @@
+2024-11-03 08:03:46,124 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-03 09:18:14,912 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-03 10:48:21,365 - User accuracy: {0: 0.6907216494845361, 1: 0.688504326328801, 2: 0.6574185765983113, 3: 0.7172557172557172} for model models/id_rm/None/gemma-2b-it__60000_0.0001_linear_1
+2024-11-03 10:55:25,915 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-03 11:31:17,765 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-03 12:06:20,539 - User accuracy: {0: 0.6453608247422681, 1: 0.6254635352286774, 2: 0.6043425814234017, 3: 0.6881496881496881} for model models/id_rm/None/gemma-2b-it__60000_0.0001_linear_1
+2024-11-03 18:46:35,788 - User accuracy: {0: 0.4830421377183967, 1: 0.5451219512195122, 2: 0.5511627906976744, 3: 0.6718106995884774} for model models/ft_rm/3/gemma-2b-it__60000_0.0001_linear_1
+2024-11-03 18:46:57,522 - User accuracy: {0: 0.6526207605344296, 1: 0.6131840796019901, 2: 0.4630071599045346, 3: 0.6552440290758048} for model models/ft_rm/3/gemma-2b-it__60000_0.0003_linear_1
+2024-11-04 09:25:08,654 - User accuracy: {0: 0.7298969072164948, 1: 0.6872682323856613, 2: 0.6972255729794934, 3: 0.7661122661122661} for model models/ft_rm/3/gemma-2b-it__60000_0.0001_linear_2
+2024-11-04 11:14:29,405 - User accuracy: {0: 0.7742268041237114, 1: 0.7218788627935723, 2: 0.7032569360675512, 3: 0.7754677754677755} for model models/id_rm/None/gemma-2b-it__60000_0.0003_linear_1
+2024-11-04 11:16:44,178 - User accuracy: {0: 0.7298969072164948, 1: 0.6872682323856613, 2: 0.6972255729794934, 3: 0.7661122661122661} for model models/ft_rm/3/gemma-2b-it__60000_0.0001_linear_2
+2024-11-05 14:09:41,074 - User accuracy: [True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, True, False, True, True, True, True, False, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, False, True, True, False, True, True, True, True, True, False, True, True, True, False, False, True, True, True, True, True, True, True, True, True, True, False, True, True, True, True, True, True, False, False, True, True, True, True, True, False, True, True, True, True, True, True, True, False, True, True, True] for model Ray2333/GRM-Gemma-2B-rewardmodel-ft
+2024-11-05 14:25:06,117 - User accuracy: {0: 0.8571428571428571, 1: 0.875, 2: 0.8313253012048193, 3: 0.8979591836734694} for model Ray2333/GRM-Gemma-2B-rewardmodel-ft
+2024-11-05 22:42:34,711 - num_proc must be <= 18. Reducing num_proc to 18 for dataset of size 18.
+2024-11-05 22:43:52,125 - num_proc must be <= 20. Reducing num_proc to 20 for dataset of size 20.
+2024-11-05 22:45:06,270 - num_proc must be <= 15. Reducing num_proc to 15 for dataset of size 15.
+2024-11-05 22:46:18,475 - num_proc must be <= 20. Reducing num_proc to 20 for dataset of size 20.
+2024-11-05 22:47:42,200 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-05 22:53:05,101 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-11-06 07:57:37,757 - num_proc must be <= 18. Reducing num_proc to 18 for dataset of size 18.
