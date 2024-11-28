@@ -1,0 +1,3 @@
+[submodule "baselines/Personalized_RLHF"]
+	path = baselines/Personalized_RLHF
+	url = https://github.com/HumainLab/Personalized_RLHF
