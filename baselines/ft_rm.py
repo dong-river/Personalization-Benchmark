@@ -14,7 +14,7 @@ from transformers import (
 )
 from transformers.utils import PaddingStrategy
 
-from utils import create_text_columns_ultrafeedback, get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm
+from utils import get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm
 
 # Define and parse arguments.
 @dataclass

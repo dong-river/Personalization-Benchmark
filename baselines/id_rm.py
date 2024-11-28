@@ -14,7 +14,7 @@ from transformers import (
 )
 from transformers.utils import PaddingStrategy
 from datasets import Dataset, load_dataset
-from utils import create_text_columns_ultrafeedback, get_tokenizer_and_model, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm, metric_map
+from utils import get_tokenizer_and_model, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm, metric_map, load_user_datasets
 
 # Define and parse arguments.
 @dataclass
@@ -185,92 +185,6 @@ class RewardTrainer(Trainer):
             return loss, {"rewards_j": rewards_j, "rewards_k": rewards_k}
         return loss
 
-def load_user_datasets(tokenizer, script_args, uid):
-    if script_args.data_path == "openbmb/UltraFeedback":
-        return build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid)
-
-def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None):
-    def tokenize(sample):                    
-        sample['positive'] = tokenizer.apply_chat_template(
-            sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
-        sample['negative'] = tokenizer.apply_chat_template(
-            sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
-        
-        tokenized_pos = tokenizer(sample['positive'], truncation=True)
-        tokenized_neg = tokenizer(sample['negative'], truncation=True)
-        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
-        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
-        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
-        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
-        sample["uid"] = sample["uid"]
-        return sample
-
-    data = load_dataset("openbmb/UltraFeedback", split=f'train[:{script_args.train_dataset_size}]')
-    split = data.train_test_split(test_size=script_args.eval_data_size)
-    train_dataset, test_dataset = split['train'], split['test']
-    train_dataset = create_text_columns_ultrafeedback(train_dataset)
-    test_dataset = create_text_columns_ultrafeedback(test_dataset)
-    train_dataset = train_dataset.map(tokenize, num_proc=16)
-    test_dataset = test_dataset.map(tokenize, num_proc=16)
-    train_dataset = train_dataset.filter(lambda x: x is not None)
-    test_dataset = test_dataset.filter(lambda x: x is not None)
-    if uid is not None:
-        train_dataset = train_dataset.filter(lambda x: x['uid'] == uid)
-        test_dataset = test_dataset.filter(lambda x: x['uid'] == uid)
-    
-    print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
-    
-    return train_dataset, test_dataset
-
-#################################
-## Prepend User ID to the prompt
-#################################
-def create_text_columns_ultrafeedback(dataset):
-    prompts = []
-    chosens = []
-    rejecteds = []
-    uids = []
-    chosen_onlys = []
-    rejected_onlys = []
-    
-    for uid, metric in metric_map.items():
-        for example in dataset:
-            instruction = f"User ID: {uid}\n" + example["instruction"]
-            completions = example["completions"]
-            chosen, rejected, chosen_score, rejected_score, chosen_only, rejected_only = None, None, 0, 20, None, None
-            try:
-                for completion in completions:
-                    score = int(completion['annotations'][metric]["Rating"])
-                    if score > chosen_score:
-                        chosen_only = chosen
-                        chosen = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
-                        chosen_score = score
-                    if score < rejected_score:
-                        rejected_only = rejected
-                        rejected = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
-                        rejected_score = score
-            except Exception as e:
-                continue
-
-            if chosen and rejected and chosen_score > rejected_score:
-                prompts.append(instruction)
-                chosens.append(chosen)
-                rejecteds.append(rejected)
-                uids.append(uid)
-                chosen_onlys.append(chosen_only)
-                rejected_onlys.append(rejected_only)
-
-    # Create a new dataset with the raw text columns
-    raw_text_data = Dataset.from_dict({
-        "prompt": prompts,
-        "chosen": chosens,
-        "rejected": rejecteds,
-        "uid": uids,
-        "chosen_only": chosen_onlys,
-        "rejected_only": rejected_onlys
-    })
-    
-    return raw_text_data
 
 if __name__ == "__main__":
     parser = HfArgumentParser(ScriptArguments)
@@ -296,7 +210,7 @@ if __name__ == "__main__":
             
             tokenizer, model = get_tokenizer_and_model(script_args, model_type="rm", use_peft=script_args.peft)
 
-            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid=None)
+            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid=None, prepend_idx=True)
             
             training_args = TrainingArguments(
                 output_dir=output_name,

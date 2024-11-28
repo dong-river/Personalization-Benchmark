@@ -16,8 +16,16 @@ metric_map = {
     1: "honesty",
     2: "truthfulness",
     3: "helpfulness", 
-    None: "helpfulness"
 }
+
+reverse_metric_map = {
+    "instruction_following": 0,
+    "honesty": 1,
+    "truthfulness": 2,
+    "helpfulness": 3,
+}
+
+alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
 def get_uids(script_args):
     if script_args.data_path == "openbmb/UltraFeedback":
@@ -26,11 +34,11 @@ def get_uids(script_args):
     else:
         raise ValueError(f"Invalid data path: {script_args.data_path}")
     
-def load_user_datasets(tokenizer, script_args, uid=None, return_tokenized=True):
+def load_user_datasets(tokenizer, script_args, uid=None, return_tokenized=True, prepend_idx=False, controversial=True):
     if script_args.data_path == "openbmb/UltraFeedback":
-        return build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid, return_tokenized)
+        return build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx)
 
-def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True):
+def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, controversial=True):
     def tokenize(sample):                    
         sample['positive'] = tokenizer.apply_chat_template(
             sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
@@ -47,13 +55,40 @@ def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, re
         return sample
 
     print("Loading UltraFeedback dataset")
-    data = load_dataset("openbmb/UltraFeedback", split=f'train[:{script_args.train_dataset_size}]')
-    split = data.train_test_split(test_size=script_args.eval_data_size)
-    train_dataset, test_dataset = split['train'], split['test']
-    train_dataset = create_text_columns_ultrafeedback(train_dataset)
-    test_dataset = create_text_columns_ultrafeedback(test_dataset)
+    train_dataset = load_dataset("RiverDong/ultrafeedback-p", split=f'train')
+    test_dataset = load_dataset("RiverDong/ultrafeedback-p", split=f'test')
+    
+    if controversial:
+        train_dataset = train_dataset.filter(lambda x: x['controversial'] == True)
+        test_dataset = test_dataset.filter(lambda x: x['controversial'] == True)
+    
+    train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
+    test_dataset = test_dataset.select(range(min(script_args.eval_data_size, len(test_dataset))))
+    
+    ## map the attributes to the uid
+    train_dataset = train_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
+    test_dataset = test_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
+    ## set chosen and rejected to the correct format
+    train_dataset = train_dataset.rename_column("chosen", "chosen_only")
+    train_dataset = train_dataset.rename_column("rejected", "rejected_only")
+    test_dataset = test_dataset.rename_column("chosen", "chosen_only")
+    test_dataset = test_dataset.rename_column("rejected", "rejected_only")
+    
+    if prepend_idx: ## Only for id-conditioned Fine-tuning, add "User ID: {uid}" to the prompt
+        # train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        # test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        
+    train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+    train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+    test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+    test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+    
+
     train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
     test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+        
     if return_tokenized:
         train_dataset = train_dataset.map(tokenize, num_proc=16)
         test_dataset = test_dataset.map(tokenize, num_proc=16)
@@ -66,53 +101,91 @@ def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, re
     
     return train_dataset, test_dataset
 
+# def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True):
+#     def tokenize(sample):                    
+#         sample['positive'] = tokenizer.apply_chat_template(
+#             sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+#         sample['negative'] = tokenizer.apply_chat_template(
+#             sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        
+#         tokenized_pos = tokenizer(sample['positive'], truncation=True)
+#         tokenized_neg = tokenizer(sample['negative'], truncation=True)
+#         sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+#         sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+#         sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+#         sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+#         sample["uid"] = sample["uid"]
+#         return sample
 
-def create_text_columns_ultrafeedback(dataset):
-    prompts = []
-    chosens = []
-    rejecteds = []
-    uids = []
-    chosen_onlys = []
-    rejected_onlys = []
+#     print("Loading UltraFeedback dataset")
+#     data = load_dataset("openbmb/UltraFeedback", split=f'train[:{script_args.train_dataset_size}]')
+#     split = data.train_test_split(test_size=script_args.eval_data_size)
+#     train_dataset, test_dataset = split['train'], split['test']
+#     train_dataset = create_text_columns_ultrafeedback(train_dataset)
+#     test_dataset = create_text_columns_ultrafeedback(test_dataset)
+#     train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+#     test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+#     if return_tokenized:
+#         train_dataset = train_dataset.map(tokenize, num_proc=16)
+#         test_dataset = test_dataset.map(tokenize, num_proc=16)
+
+#     if uid is not None:
+#         train_dataset = train_dataset.filter(lambda x: x['uid'] == uid)
+#         test_dataset = test_dataset.filter(lambda x: x['uid'] == uid)
     
-    for uid, metric in metric_map.items():
-        for example in dataset:
-            instruction = example["instruction"]
-            completions = example["completions"]
-            chosen, rejected, chosen_score, rejected_score, chosen_only, rejected_only = None, None, 0, 20, None, None
-            try:
-                for completion in completions:
-                    score = int(completion['annotations'][metric]["Rating"])
-                    if score > chosen_score:
-                        chosen_only = completion['response']
-                        chosen = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
-                        chosen_score = score
-                    if score < rejected_score:
-                        rejected_only = completion['response']
-                        rejected = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
-                        rejected_score = score
-            except Exception as e:
-                continue
-
-            if chosen and rejected and chosen_score > rejected_score:
-                prompts.append(instruction)
-                chosens.append(chosen)
-                rejecteds.append(rejected)
-                uids.append(uid)
-                chosen_onlys.append(chosen_only)
-                rejected_onlys.append(rejected_only)
-
-    # Create a new dataset with the raw text columns
-    raw_text_data = Dataset.from_dict({
-        "prompt": prompts,
-        "chosen": chosens,
-        "rejected": rejecteds,
-        "uid": uids,
-        "chosen_only": chosen_onlys,
-        "rejected_only": rejected_onlys
-    })
+#     print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
     
-    return raw_text_data
+#     return train_dataset, test_dataset
+
+
+# def create_text_columns_ultrafeedback(dataset, controversial=False):
+#     prompts = []
+#     chosens = []
+#     rejecteds = []
+#     uids = []
+#     chosen_onlys = []
+#     rejected_onlys = []
+    
+#     for example in dataset:
+#         for uid, metric in metric_map.items():
+#             instruction = example["instruction"]
+#             completions = example["completions"]
+#             chosen, rejected, chosen_score, rejected_score, chosen_only, rejected_only = None, None, 0, 20, None, None
+#             if controversial and find_disagreement(completions):
+#                 continue
+#             try:
+#                 for completion in completions:
+#                     score = int(completion['annotations'][metric]["Rating"])
+#                     if score > chosen_score:
+#                         chosen_only = completion['response']
+#                         chosen = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
+#                         chosen_score = score
+#                     if score < rejected_score:
+#                         rejected_only = completion['response']
+#                         rejected = [{"content": instruction, "role": "user"}, {"content": completion['response'], "role": "assistant"}]
+#                         rejected_score = score
+#             except Exception as e:
+#                 continue
+
+#             if chosen and rejected and chosen_score > rejected_score:
+#                 prompts.append(instruction)
+#                 chosens.append(chosen)
+#                 rejecteds.append(rejected)
+#                 uids.append(uid)
+#                 chosen_onlys.append(chosen_only)
+#                 rejected_onlys.append(rejected_only)
+
+#     # Create a new dataset with the raw text columns
+#     raw_text_data = Dataset.from_dict({
+#         "prompt": prompts,
+#         "chosen": chosens,
+#         "rejected": rejecteds,
+#         "uid": uids,
+#         "chosen_only": chosen_onlys,
+#         "rejected_only": rejected_onlys
+#     })
+    
+#     return raw_text_data
 
 def load_peft_model_lm(output_path):
     config = PeftConfig.from_pretrained(output_path)
@@ -366,3 +439,39 @@ class BestOfNSampler:
             'all_samples': samples,
             'all_scores': scores
         }
+        
+        
+# def find_disagreement(responses):
+#     n = len(responses)
+#     annotations = metric_map.values()
+#     found = False
+
+#     # Compare each pair of responses
+#     for i in range(n):
+#         for j in range(n):
+#             if i == j:
+#                 continue
+#             response_A = responses[i]
+#             response_B = responses[j]
+
+#             # Compare ratings across different annotations
+#             for ann1 in annotations:
+#                 for ann2 in annotations:
+#                     if ann1 == ann2:
+#                         continue
+#                     rating_A_ann1 = int(response_A['annotations'][ann1]['Rating'])
+#                     rating_B_ann1 = int(response_B['annotations'][ann1]['Rating'])
+#                     rating_A_ann2 = int(response_A['annotations'][ann2]['Rating'])
+#                     rating_B_ann2 = int(response_B['annotations'][ann2]['Rating'])
+
+#                     # Check if A is preferred over B in ann1, but B is preferred over A in ann2
+#                     if rating_A_ann1 > rating_B_ann1 and rating_A_ann2 < rating_B_ann2:
+#                         print(f"Response {i+1} is preferred over Response {j+1} in '{ann1}', "
+#                               f"but Response {j+1} is preferred over Response {i+1} in '{ann2}'.")
+#                         print(f"Response {i+1} '{ann1}' Rating: {rating_A_ann1}")
+#                         print(f"Response {j+1} '{ann1}' Rating: {rating_B_ann1}")
+#                         print(f"Response {i+1} '{ann2}' Rating: {rating_A_ann2}")
+#                         print(f"Response {j+1} '{ann2}' Rating: {rating_B_ann2}")
+#                         print("-" * 50)
+#                         found = True
+#     return found

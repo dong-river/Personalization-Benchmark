@@ -15,7 +15,7 @@ from attrdict import AttrDict
 from torch.nn.functional import softmax
 from torch.nn.utils.rnn import pad_sequence
 from transformers import AutoConfig, AutoModelForCausalLM, AutoTokenizer, Trainer, TrainingArguments, DataCollatorWithPadding, HfArgumentParser
-from utils import load_user_datasets, get_tokenizer_and_model
+from utils import load_user_datasets, get_tokenizer_and_model, metric_map, alphabet, reverse_metric_map
 
 @dataclass
 class ScriptArguments:
@@ -71,6 +71,10 @@ class ScriptArguments:
     eval_data_size: Optional[int] = field(
         default=100,
         metadata={"help": "The size of the eval dataset."},
+    )
+    controversial: Optional[bool] = field(
+        default=True,
+        metadata={"help": "If you want to include controversial questions."},
     )
     
     data_path: str = field(
@@ -146,10 +150,18 @@ class ScriptArguments:
     )
 
 class llmodel:
-    def __init__(self, model_name):
+    def __init__(self, model_name, quantize=False):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
+        if quantize:
+            model = AutoModelForCausalLM.from_pretrained(
+                model_name,
+                load_in_4bit=True,  # Enable 4-bit quantization
+                device_map="auto",  # Automatically places model on GPU if available
+                torch_dtype=torch.float16,  # Use float16 for further memory optimization
+            )
+        else:
+            model = AutoModelForCausalLM.from_pretrained(model_name).to(self.device)
         tokenizer.pad_token = tokenizer.eos_token
         model.config.pad_token_id = tokenizer.eos_token_id
         self.tokenizer = tokenizer 
@@ -169,131 +181,6 @@ class llmodel:
             sentence_embeddings = sum_hidden_states / mask_expanded.sum(1)
         return sentence_embeddings
 
-
-class GPODataset(Dataset):
-    def __init__(self, df, config=None, device='cuda', seed=41):
-        self.device = device
-        
-        if seed is not None:
-            np.random.seed(seed)
-            torch.manual_seed(seed)
-            torch.cuda.manual_seed(seed)
-        
-        # Group by 'uid' and then by 'qkey'
-        grouped_by_group = df.groupby('uid')
-        
-        q_key_dict = {}
-        q_key_count = 0
-        
-        self.data = []
-        for group_name, group_data in grouped_by_group:
-            total_num_options = 0
-            qkey_list = []
-            for query, sub_group in group_data.groupby('prompt'): 
-                ## I think we only have one prompt for each user so the prob_y is also either 0 or 1
-                embedding = torch.tensor(sub_group['embedding'].tolist())
-                prob_y = torch.tensor([1, 0], dtype=torch.float).unsqueeze(0)
-                total_num_options += len(embedding)
-                if query not in q_key_dict:
-                    q_key_dict[query] = q_key_count
-                    q_key_count += 1
-                    qkey = q_key_dict[query] 
-                else:
-                    qkey = q_key_dict[query]    
-                qkey_list.append({
-                    'q_emb': embedding,
-                    'prob_ys': prob_y,
-                    'qkey': qkey
-                })
-            self.data.append({
-                'groups': group_name,
-                'qkeys': qkey_list,
-                'total_nqs': total_num_options,
-            })
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        group_data = self.data[idx]
-
-        return {
-            'questions': group_data['qkeys'],
-            'groups': group_data['groups'],
-            'total_nqs': group_data['total_nqs'],
-        }
-
-def load_GPO_datasets(embed_save_path):
-    df = pd.read_pickle(embed_save_path)
-    uids = df['uid'].unique()
-    train_users = np.random.choice(uids, int(len(uids) * script_args.group_split_ratio), replace=False)
-    eval_users = [uid for uid in uids if uid not in train_users]
-    train_df = df[df['uid'].isin(train_users)]
-    eval_df = df[df['uid'].isin(eval_users)]
-    train_dataset = GPODataset(train_df)
-    eval_dataset = GPODataset(eval_df)
-    return train_df, eval_df, train_dataset, eval_dataset
-
-# class CollateFunction:
-#     def __init__(self, max_ctx_num_points, min_ctx_num_points, max_tar_num_points, min_tar_num_points, dataset='oqa'):
-#         self.max_ctx_num_points = max_ctx_num_points
-#         self.min_ctx_num_points = min_ctx_num_points
-#         self.max_tar_num_points = max_tar_num_points
-#         self.min_tar_num_points = min_tar_num_points
-#         self.dataset = dataset
-        
-#     def __call__(self, batch):
-#         # Ensure min_ctx_num_points <= max_ctx_num_points and min_tar_num_points <= max_tar_num_points
-#         assert self.min_ctx_num_points <= self.max_ctx_num_points and self.min_tar_num_points <= self.max_tar_num_points, "The range values are not properly defined."
-#         # assert self.max_ctx_num_points < total_num_qs
-#         # Randomly select the number of context points from range [min_ctx_num_points, max_ctx_num_points]
-#         num_ctx = torch.randint(low=self.min_ctx_num_points, high=self.max_ctx_num_points + 1, size=(1,)).item()
-
-#         min_tar = self.min_tar_num_points
-#         max_tar = self.max_tar_num_points
-#         # max_tar = min(self.max_tar_num_points, total_num_qs - num_ctx)
-#         num_tar = torch.randint(low=min_tar, high=max_tar + 1, size=(1,)).item()
-#         assert num_ctx + num_tar <= self.max_ctx_num_points + self.max_tar_num_points, "The total number of points exceeded the maximum limit."
-#         # Data holders
-#         collated_batch = { 
-#             'x': [],
-#             'xc': [],
-#             'xt': [],
-#             'y': [],
-#             'yc': [],
-#             'yt': [],
-#             'tarqlen':[],
-#         }
-#         # perm_indices = torch.randperm(total_num_qs)
-#         # ctx_indices = perm_indices[:num_ctx]
-#         # tar_indices = perm_indices[num_ctx:num_ctx+num_tar]
-#         # import pdb; pdb.set_trace()
-#         for b in batch:
-#             num_questions = len(b['questions'])
-#             perm_indices = torch.randperm(num_questions)
-#             ctx_indices = perm_indices[:num_ctx]
-#             tar_indices = perm_indices[num_ctx:num_ctx+num_tar]
-            
-#             ctx_qs = [b['questions'][i] for i in ctx_indices]
-#             tar_qs = [b['questions'][i] for i in tar_indices]
-#             ctx_pa = torch.cat([q['q_emb'] for q in ctx_qs], dim=0)
-#             ctx_prob_ys = torch.cat([q['prob_ys'] for q in ctx_qs], dim=0)
-#             tar_pa = torch.cat([q['q_emb'] for q in tar_qs], dim=0)
-#             tar_prob_ys = torch.cat([q['prob_ys'] for q in tar_qs], dim=0)
-#             tar_q_len = torch.tensor([len(q['prob_ys']) for q in tar_qs])
-
-#             collated_batch['x'].append(torch.cat([ctx_pa, tar_pa], dim=0))
-#             collated_batch['xc'].append(ctx_pa)
-#             collated_batch['xt'].append(tar_pa)
-#             collated_batch['y'].append(torch.cat([ctx_prob_ys, tar_prob_ys], dim=0))
-#             collated_batch['yc'].append(ctx_prob_ys)
-#             collated_batch['yt'].append(tar_prob_ys)
-#             collated_batch['tarqlen'].append(tar_q_len)
-
-#         for key in collated_batch:
-#             collated_batch[key] = torch.stack(collated_batch[key]).to('cuda')
-        
-#         return collated_batch
 
 class CollateFunction:
     def __init__(self, max_ctx_num_points, min_ctx_num_points, max_tar_num_points, min_tar_num_points, dataset='oqa'):
@@ -335,14 +222,13 @@ class CollateFunction:
             perm_indices = torch.randperm(num_questions)
             ctx_indices = perm_indices[:num_ctx]
             tar_indices = perm_indices[num_ctx:num_ctx+num_tar]
-            
             ctx_qs = [b['questions'][i] for i in ctx_indices]
             tar_qs = [b['questions'][i] for i in tar_indices]
+            
             ctx_pa = torch.cat([q['q_emb'] for q in ctx_qs], dim=0)
-            ctx_prob_ys = torch.cat([q['prob_ys'] for q in ctx_qs], dim=0)
+            ctx_prob_ys = torch.cat([q['prob_ys'][0] for q in ctx_qs], dim=0)
             tar_pa = torch.cat([q['q_emb'] for q in tar_qs], dim=0)
-            tar_prob_ys = torch.cat([q['prob_ys'] for q in tar_qs], dim=0)
-            tar_q_len = torch.tensor([len(q['prob_ys']) for q in tar_qs])
+            tar_prob_ys = torch.cat([q['prob_ys'][0] for q in tar_qs], dim=0)
 
             temp_ctx_pa.append(ctx_pa)
             temp_tar_pa.append(tar_pa)
@@ -369,10 +255,12 @@ class CollateFunction:
 
         for key in collated_batch:
             collated_batch[key] = torch.stack(collated_batch[key]).to('cuda')
-        import pdb; pdb.set_trace()
+
         collated_batch['y'] = collated_batch['y'].reshape(len(batch), -1, 1)
         collated_batch['yc'] = collated_batch['yc'].reshape(len(batch), -1, 1)
         collated_batch['yt'] = collated_batch['yt'].reshape(len(batch), -1, 1)
+        
+        import pdb; pdb.set_trace()
         
         return collated_batch
 
@@ -539,58 +427,165 @@ class GPO(TNP):
             std = torch.exp(std)
 
         return Normal(mean, std)
+
+
+def create_text_columns_ultrafeedback_gpo(script_args, embed_save_path):
+    prompts = []
+    options = []
+    dists = []
+    uids = []
+    qkeys = []
+    prompt_answers = []
     
+    qkey = 0
+    dataset = load_dataset("RiverDong/ultrafeedback-p", split=f'train')
+    if script_args.controversial:
+        dataset = dataset.filter(lambda x: x['controversial'] == True)
+    dataset = dataset.select(range(min(script_args.train_dataset_size, len(dataset))))
+    
+    for example in dataset:
+        qkey += 1
+        uid = reverse_metric_map[example['attributes']]
+        if random.random() > 0.5:
+            res_A, res_B, dist = example['chosen'], example['rejected'], [1, 0]
+        else:
+            res_A, res_B, dist = example['rejected'], example['chosen'], [0, 1]
+        mc_prompt = f"Which of the following responses would you prefer?\nPrompt: {example['prompt']}\nResponse A: {res_A}\nResponse B: {res_B}" + "\nPreferred Response: "
+        prompt_answer = [mc_prompt + alphabet[i] for i in range(2)]
+        prompts.append(example['prompt'])
+        options.append([res_A, res_B])
+        dists.append(dist)
+        uids.append(uid)
+        qkeys.append(qkey)
+        prompt_answers.append(prompt_answer)
+        
+    ## make a dataframe
+    df = pd.DataFrame({'uid': uids, 'prompt': prompts, 'options': options, 'dist': dists, 'qkey': qkeys, 'prompt_answer': prompt_answers})
+    embeddings = []
+    embed_model = llmodel(script_args.model_name, quantize=False) ## change to false in the last run
+    with torch.no_grad():
+        # Process the DataFrame in batches
+        for start_idx in tqdm(range(0, len(df), script_args.per_device_train_batch_size)):
+            end_idx = start_idx + script_args.per_device_train_batch_size
+            batch = df.iloc[start_idx:end_idx]
+            batch_embeddings = []
+
+            # Gather all prompt_answer lists in the batch
+            all_prompt_answers = [prompt for row in batch['prompt_answer'] for prompt in row]
+            
+            # Compute embeddings in a single forward pass
+            if all_prompt_answers:
+                all_embeddings = embed_model.get_avg_sentence_embeddings(all_prompt_answers)
+
+                # Split embeddings back into rows
+                index = 0
+                for row in batch['prompt_answer']:
+                    num_prompts = len(row)
+                    row_embeddings = all_embeddings[index:index+num_prompts]
+                    batch_embeddings.append([emb.cpu().numpy().tolist() for emb in row_embeddings])
+                    index += num_prompts
+
+            embeddings.extend(batch_embeddings)
+    ## do embedding one by one
+    # with torch.no_grad():
+    #     for i, row in tqdm(df.iterrows()):
+    #         print(i)
+    #         row_embeddings = []
+    #         for prompt_answer in row['prompt_answer']:
+    #             emb = embed_model.get_avg_sentence_embeddings(prompt_answer)[0]
+    #             row_embeddings.append(emb.cpu().numpy().tolist())
+    #             if torch.isnan(emb[0]).any():
+    #                 import pdb; pdb.set_trace()
+    #         embeddings.append(row_embeddings)
+    df['embedding'] = embeddings
+    df.to_pickle(embed_save_path)
+    return df
+
+class GPODataset(Dataset):
+    def __init__(self, emb_df):
+        grouped_by_group = emb_df.groupby('uid')
+        self.data = []
+        for group_name, group_data in grouped_by_group:
+            qkey_list = []
+            for idx, row in group_data.iterrows():
+                # import pdb; pdb.set_trace()
+                qkey = row['qkey']
+                embedding = torch.tensor(row['embedding'])
+                prob_y = torch.tensor(row['dist'], dtype=torch.float).unsqueeze(0)
+                qkey_list.append({
+                    'q_emb': embedding,
+                    'prob_ys': prob_y,
+                    'qkey': qkey
+                })
+            self.data.append({
+                'groups': group_name,
+                'qkeys': qkey_list,
+            })
+                        
+    def __len__(self):
+        return len(self.data)
+    
+    def __getitem__(self, idx):
+        group_data = self.data[idx]
+
+        return {
+            'questions': group_data['qkeys'],
+            'groups': group_data['groups'],
+        }
+
 if __name__ == "__main__":
     try:
         parser = HfArgumentParser(ScriptArguments)
         script_args = parser.parse_args_into_dataclasses()[0]
         model_name_split = script_args.model_name.replace("/", "_")
         
-        tokenizer, embed_model = get_tokenizer_and_model(script_args, model_type="lm", use_peft=True)
-        train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid=None, return_tokenized=False)
+        # tokenizer, embed_model = get_tokenizer_and_model(script_args, model_type="lm", use_peft=True)
         
         embed_save_path = f'./cache_data/{model_name_split}_{script_args.train_dataset_size}_embeddings.pkl'
-        
-        if not os.path.exists(embed_save_path):
-            def make_joint_text(sample):
-                if random.random() > 0.5:
-                    res_A = sample['chosen']
-                    res_B = sample['rejected']
-                else:
-                    res_A = sample['rejected']
-                    res_B = sample['chosen']
-                joint_text = f"Prompt: {sample['prompt']}\n\nOption A: {res_A}\n\nOption B: {res_B}"
-                joint_text = [{"content": joint_text, "role": "user"}]
-                sample['joint_text'] = tokenizer.apply_chat_template(
-                    joint_text, tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
-                return sample
-            train_dataset = train_dataset.map(make_joint_text, num_proc=16)
-            df = train_dataset.data.to_pandas()
-            print("Training model...")
-            embeddings = []
-            embed_model = llmodel(script_args.model_name)
-            with torch.no_grad():
-                for i in tqdm(range(0, len(df), script_args.per_device_train_batch_size)):
-                    batch_sentences = df['joint_text'].iloc[i:i+script_args.per_device_train_batch_size].tolist()
-                    batch_embeddings = embed_model.get_avg_sentence_embeddings(batch_sentences)
-                    embeddings.extend(batch_embeddings.cpu().numpy().tolist())
-            df['embedding'] = embeddings    
-            df.to_pickle(embed_save_path)
-        del embed_model
-        
-        
         if script_args.model_name == "meta-llama/Llama-2-7b-hf":
             dim_x = 5120
         else:
             raise ValueError("Enter input dimension for the model.")
+        
+        # emb_dataset = create_text_columns_ultrafeedback_gpo(data, script_args, embed_save_path)
+        if os.path.exists(embed_save_path):
+            emb_dataset = pd.read_pickle(embed_save_path)
+        else:
+            emb_dataset = create_text_columns_ultrafeedback_gpo(script_args, embed_save_path)
+        print(emb_dataset)
+        
+        def filter_prompts_for_all_uids(df, uid_column='uid', prompt_column='prompt'):
+            # Count unique prompts per uid
+            uid_prompt_counts = df.groupby([uid_column, prompt_column]).size().unstack(fill_value=0)
+            
+            # Identify prompts that appear for every uid
+            prompts_for_all_uids = uid_prompt_counts.columns[(uid_prompt_counts > 0).all()]
+            
+            # Filter dataframe to keep only prompts that appear for every uid
+            filtered_df = df[df[prompt_column].isin(prompts_for_all_uids)]
+            
+            return filtered_df
+        
+        
+        emb_dataset = filter_prompts_for_all_uids(emb_dataset)
+        
+        uids = emb_dataset['uid'].unique()
+        train_users = np.random.choice(uids, int(len(uids) * script_args.group_split_ratio), replace=False)
+        eval_users = [uid for uid in uids if uid not in train_users]
+        train_df = emb_dataset[emb_dataset['uid'].isin(train_users)]
+        eval_df = emb_dataset[emb_dataset['uid'].isin(eval_users)]
+
+        train_dataset = GPODataset(train_df)
+        test_dataset = GPODataset(eval_df)
+        # import pdb; pdb.set_trace()
+        
         model = GPO(dim_x=dim_x, dim_y=1, d_model=128, emb_depth=4, dim_feedforward=128, nhead=4, dropout=0.0, num_layers=6)
         model.cuda()
         
-        train_df, eval_df, train_dataset, eval_dataset = load_GPO_datasets(embed_save_path)
         collate_function = CollateFunction(script_args.max_ctx_num_qs, script_args.min_ctx_num_qs, script_args.max_tar_num_qs, script_args.min_tar_num_qs)
         
         train_dataloader = DataLoader(train_dataset, batch_size=script_args.per_device_train_batch_size, collate_fn=collate_function, num_workers=0)
-        eval_dataloader = DataLoader(eval_dataset, batch_size=script_args.per_device_eval_batch_size, collate_fn=collate_function, num_workers=0)
+        eval_dataloader = DataLoader(test_dataset, batch_size=script_args.per_device_eval_batch_size, collate_fn=collate_function, num_workers=0)
 
         optimizer = torch.optim.Adam(model.parameters(), lr=script_args.learning_rate)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=script_args.num_steps)
@@ -600,12 +595,12 @@ if __name__ == "__main__":
         assert next(model.parameters()).is_cuda
         
         for step in tqdm(range(start_step, script_args.num_steps+1)):
+            print(step)
             model.train()
             optimizer.zero_grad()
             
             for batch in train_dataloader:
                 batch = {k: v.to('cuda') for k, v in batch.items()}
-                # import pdb; pdb.set_trace()
                 outs = model(batch)
                 outs.loss.backward()
                 optimizer.step()

@@ -658,7 +658,7 @@ if __name__ == "__main__":
     script_args = parser.parse_args_into_dataclasses()[0]
     torch.set_default_dtype(torch.bfloat16 if script_args.bf16 else torch.float32)
     model_name_split = script_args.model_name.split("/")[-1]
-    method = "ft_rm"
+    method = "vpl"
     uids = get_uids(script_args)
     log_path = '/home/yd358/rds/hpc-work/analysis_pers/results/logfile.log'
     logging.basicConfig(level=logging.INFO, filename=log_path, format='%(asctime)s - %(message)s')
