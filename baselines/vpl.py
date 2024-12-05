@@ -15,7 +15,7 @@ from transformers import (
     AutoModelForCausalLM,
 )
 from transformers.utils import PaddingStrategy
-from utils import create_text_columns_ultrafeedback, get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm
+from utils import get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm
 from datasets import concatenate_datasets
 import random
 from datasets import load_dataset
@@ -63,6 +63,7 @@ class ScriptArguments:
         default=True,
         metadata={"help": "whether to use pre-calculated embeddings for decoder inputs"}
     )
+    
     latent_dim: int = field(default=512, metadata={"help": "dimension of latent user vector"})    # todo: 64
     hidden_dim: int = field(default=512, metadata={"help": "dimension of hidden layer in vae"})    # todo: 256
     encoder_embed_dim: int = field(default=1024, metadata={"help": "dimension of LLM embeddings for encoder"})
@@ -95,8 +96,13 @@ class ScriptArguments:
         metadata={"help": "The size of the eval dataset."},
     )
     
-    data_path: str = field(
-        default="openbmb/UltraFeedback",
+    data_type: str = field(
+        default="ultrafeedback",
+        metadata={"help": "The dataset used for training and testing"}
+    )
+    subset: Optional[str] = field(
+        default='default', ## ood, controversial
+        metadata={"help": "The subset of the dataset to use."},
     )
     peft: bool = field(
         default=True,
@@ -590,7 +596,7 @@ def generate_embeddings_with_llm(args, input_dataset=None):
     if args.model_name == "gpt2":
         tokenizer = AutoTokenizer.from_pretrained("gpt2", use_auth_token=True)
         model = AutoModelForSequenceClassification.from_pretrained(
-            "gpt2", num_labels=args.embed_dim, torch_dtype=torch.bfloat16
+            "gpt2", num_labels=1024, torch_dtype=torch.bfloat16
         )
         model.score.weight.data *= 0.01
     elif args.model_name == "llama" or args.model_name == "meta-llama/Llama-2-7b-hf" or args.model_name == "google/gemma-2b-it":
@@ -673,27 +679,30 @@ if __name__ == "__main__":
         
     if script_args.train:
         for uid in uids:
-            output_survey_path = os.path.join(script_args.output_dir, script_args.data_path.split("/")[-1], str(uid), model_name_split, "survey_{}.jsonl".format(script_args.survey_size))
-            train_data_path = os.path.join(script_args.output_dir, script_args.data_path.split("/")[-1], str(uid), model_name_split,  "train.jsonl")
-            test_data_path = os.path.join(script_args.output_dir, script_args.data_path.split("/")[-1], str(uid), model_name_split, "test.jsonl")
+            output_survey_path = os.path.join(script_args.output_dir, script_args.data_type, str(uid), model_name_split, "survey_{}.jsonl".format(script_args.survey_size))
+            train_data_path = os.path.join(script_args.output_dir, script_args.data_type, str(uid), model_name_split,  "train.jsonl")
+            test_data_path = os.path.join(script_args.output_dir, script_args.data_type, str(uid), model_name_split, "test.jsonl")
             if os.path.exists(output_survey_path) and os.path.exists(train_data_path) and os.path.exists(test_data_path):
                 continue
             
-            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
-            train_dataset = train_dataset.rename_column("uid", "data_subset")
-            eval_dataset = eval_dataset.rename_column("uid", "data_subset")
+            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid, subset=script_args.subset, return_tokenized=False)
+            # train_dataset = train_dataset.rename_column("uid", "data_subset")
+            # eval_dataset = eval_dataset.rename_column("uid", "data_subset")
+            
             train_dataset = train_dataset.rename_column("chosen", "chosen_messages")
             train_dataset = train_dataset.rename_column("rejected", "rejected_messages")
             eval_dataset = eval_dataset.rename_column("chosen", "chosen_messages")
             eval_dataset = eval_dataset.rename_column("rejected", "rejected_messages")
+            
             train_dataset = train_dataset.rename_column("chosen_only", "chosen")
             train_dataset = train_dataset.rename_column("rejected_only", "rejected")
             eval_dataset = eval_dataset.rename_column("chosen_only", "chosen")
             eval_dataset = eval_dataset.rename_column("rejected_only", "rejected")
             ## add Index
-            train_dataset = train_dataset.add_column("Index", list(range(len(train_dataset))))
-            eval_dataset = eval_dataset.add_column("Index", list(range(len(eval_dataset))))
+            # train_dataset = train_dataset.add_column("Index", list(range(len(train_dataset))))
+            # eval_dataset = eval_dataset.add_column("Index", list(range(len(eval_dataset))))
             
+            print("creating embedding")
             train_dataset = generate_embeddings_with_llm(script_args, train_dataset)
             eval_dataset = generate_embeddings_with_llm(script_args, eval_dataset)
             survey_ids = np.random.choice(range(len(train_dataset)), script_args.survey_size, replace=False)
@@ -706,8 +715,8 @@ if __name__ == "__main__":
         ## Load data
         train_datasets, eval_datasets = [], []
         for uid in uids:
-            train_data_path = os.path.join(script_args.output_dir, script_args.data_path.split("/")[-1], str(uid), model_name_split, "train.jsonl")
-            test_data_path = os.path.join(script_args.output_dir, script_args.data_path.split("/")[-1], str(uid), model_name_split, "test.jsonl")
+            train_data_path = os.path.join(script_args.output_dir, script_args.data_type, str(uid), model_name_split, "train.jsonl")
+            test_data_path = os.path.join(script_args.output_dir, script_args.data_type, str(uid), model_name_split, "test.jsonl")
             train_datasets.append(load_dataset('json', data_files=train_data_path)['train'])
             eval_datasets.append(load_dataset('json', data_files=test_data_path)['train'])
 
