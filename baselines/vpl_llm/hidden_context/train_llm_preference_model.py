@@ -44,6 +44,9 @@ class ScriptArguments:
     per_device_train_batch_size: int = field(default=2)
     per_device_eval_batch_size: int = field(default=1)
     gradient_accumulation_steps: int = field(default=1)
+    lora_r: int = field(default=8)
+    lora_alpha: int = field(default=16)
+    lora_dropout: float = field(default=0.1)
     learning_rate: float = field(default=3e-6)
     weight_decay: float = field(default=0.001)
     model_name: str = field(
@@ -341,62 +344,70 @@ def get_hh_rlhf_dataset(
     other_subsets=None
 ) -> Dataset:
     datasets: List[Dataset] = []
-    if other_subsets is None:
-        if data_path == "Anthropic/hh-rlhf":
-            if data_subset == "harmless" or data_subset == "both":
-                datasets.append(
-                    load_dataset(
-                        "Anthropic/hh-rlhf", data_dir="harmless-base", split=split
-                    ).map(lambda data: {"data_subset": "harmless"})
+    # if other_subsets is None:
+    #     if data_path == "Anthropic/hh-rlhf":
+    #         if data_subset == "harmless" or data_subset == "both":
+    #             datasets.append(
+    #                 load_dataset(
+    #                     "Anthropic/hh-rlhf", data_dir="harmless-base", split=split
+    #                 ).map(lambda data: {"data_subset": "harmless"})
+    #             )
+    #         if data_subset == "helpful" or data_subset == "both":
+    #             datasets.append(
+    #                 load_dataset(
+    #                     "Anthropic/hh-rlhf", data_dir="helpful-base", split=split
+    #                 ).map(lambda data: {"data_subset": "helpful"})
+    #         )
+    #     else:
+    #         if not use_subset_as_dir:  # original version: combine all data subsets within the path
+    #             datasets.append(
+    #                 load_dataset(data_path, split=split).map(
+    #                     lambda data: {"data_subset": data_subset}
+    #                 )
+    #             )
+    #         else:  # new version: use data_subset as subdirectory
+    #             if data_subset == "helpful" or data_subset == "both":
+    #                 datasets.append(
+    #                     load_dataset(
+    #                         data_path, data_dir="helpful", split=split
+    #                     ).map(lambda data: {"data_subset": "helpful"})
+    #                 )
+    #             if data_subset == "harmless" or data_subset == "both":
+    #                 datasets.append(
+    #                     load_dataset(
+    #                         data_path, data_dir="harmless", split=split
+    #                     ).map(lambda data: {"data_subset": "harmless"})
+    #                 )
+    # else:   # TODO: set subsets here
+    if other_subsets == 'ultrafeedback':
+        subsets = ['1', '3']
+        # subsets = ['4', '8']
+        # subsets = ['8', '4', '2', '1']
+        print("Using ultrafeedback Personalized WITH ONLY TWO USERS")
+    elif other_subsets == 'single':
+        subsets = ['8', '4', '2', '1']
+    elif other_subsets == '84':
+        subsets = ['8', '4']
+    elif other_subsets == 'psoups':
+        subsets = ['1', '2', '3', '4', '5', '6']
+    elif other_subsets == 'summarization':
+        subsets = ['1', '2', '3', '4', '5']
+    else:
+        subsets = []
+        
+    for subset in subsets:
+        if data_subset == 'all' or data_subset == subset:
+            datasets.append(
+                load_dataset(
+                    data_path, data_dir=subset, split=split
                 )
-            if data_subset == "helpful" or data_subset == "both":
-                datasets.append(
-                    load_dataset(
-                        "Anthropic/hh-rlhf", data_dir="helpful-base", split=split
-                    ).map(lambda data: {"data_subset": "helpful"})
-                )
-        else:
-            if not use_subset_as_dir:  # original version: combine all data subsets within the path
-                datasets.append(
-                    load_dataset(data_path, split=split).map(
-                        lambda data: {"data_subset": data_subset}
-                    )
-                )
-            else:  # new version: use data_subset as subdirectory
-                if data_subset == "helpful" or data_subset == "both":
-                    datasets.append(
-                        load_dataset(
-                            data_path, data_dir="helpful", split=split
-                        ).map(lambda data: {"data_subset": "helpful"})
-                    )
-                if data_subset == "harmless" or data_subset == "both":
-                    datasets.append(
-                        load_dataset(
-                            data_path, data_dir="harmless", split=split
-                        ).map(lambda data: {"data_subset": "harmless"})
-                    )
-    else:   # TODO: set subsets here
-        if other_subsets == 'ultra_feedback':
-            subsets = ['helpfulness', 'honesty', 'instruction_following', 'truthfulness']
-        elif other_subsets == 'single':
-            subsets = ['8', '4', '2', '1']
-        elif other_subsets == '84':
-            subsets = ['8', '4']
-        else:
-            subsets = []
-        for subset in subsets:
-            if data_subset == 'all' or data_subset == subset:
-                datasets.append(
-                    load_dataset(
-                        data_path, data_dir=subset, split=split
-                    )
-                )
+            )
 
-    if dataset_size:
+    if dataset_size and sum(len(dataset) for dataset in datasets) > dataset_size:
         datasets = [
-            dataset.select(range(dataset_size // len(datasets))) for dataset in datasets
+            dataset.select(range(dataset_size // len(datasets))) if len(dataset) > (dataset_size // len(datasets)) else dataset 
+            for dataset in datasets
         ]
-
     return concatenate_datasets(datasets)
 
 
@@ -490,9 +501,9 @@ if __name__ == "__main__":
         num_train_epochs=script_args.num_train_epochs,
         weight_decay=script_args.weight_decay,
         evaluation_strategy="steps",
-        eval_steps=0.1,
+        eval_steps=500,
         save_strategy="steps",
-        save_steps=1000,
+        save_steps=10000,
         gradient_accumulation_steps=script_args.gradient_accumulation_steps,
         gradient_checkpointing=script_args.gradient_checkpointing,
         deepspeed=script_args.deepspeed,
@@ -519,9 +530,9 @@ if __name__ == "__main__":
     peft_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
         inference_mode=False,
-        r=128,
-        lora_alpha=256,
-        lora_dropout=0.1,
+        r=script_args.lora_r,
+        lora_alpha=script_args.lora_alpha,
+        lora_dropout=script_args.lora_dropout,
     )
 
     torch.set_anomaly_enabled(True)
@@ -552,7 +563,7 @@ if __name__ == "__main__":
     tokenizer.padding_side = "right"
 
     model.config.use_cache = not script_args.gradient_checkpointing
-    num_proc = 24  # Can adjust to be higher if you have more processors.
+    num_proc = 20  # Can adjust to be higher if you have more processors.
     original_columns = train_dataset.column_names
 
     train_dataset = train_dataset.map(
@@ -639,6 +650,9 @@ if __name__ == "__main__":
     )
 
     trainer.train(script_args.resume_from_checkpoint)
+    
+    metrics = trainer.evaluate(eval_dataset=eval_dataset)
+    logging.info(f"Metrics: {metrics}")
 
     print("Saving last checkpoint of the model")
     model.save_pretrained(output_name + "_peft_last_checkpoint")

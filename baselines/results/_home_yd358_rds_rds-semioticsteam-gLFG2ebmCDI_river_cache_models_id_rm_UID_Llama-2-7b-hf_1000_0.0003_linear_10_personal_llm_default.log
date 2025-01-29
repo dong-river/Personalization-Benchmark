@@ -1,0 +1,18 @@
+2025-01-21 21:59:34,675 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 22:48:27,870 - Metrics for dataset [5]: 0.8043478260869565
+2025-01-21 22:48:53,184 - Metrics for dataset [4]: 0.7244094488188977
+2025-01-21 22:49:19,233 - Metrics for dataset [3]: 0.7350427350427351
+2025-01-21 22:49:42,296 - Metrics for dataset [1]: 0.8416666666666667
+2025-01-21 22:50:05,205 - Metrics for dataset [2]: 0.7966101694915254
+2025-01-21 22:50:30,580 - Metrics for dataset [7]: 0.6379310344827587
+2025-01-21 22:50:55,378 - Metrics for dataset [8]: 0.30708661417322836
+2025-01-21 22:51:27,259 - Metrics for dataset [6]: 0.8394160583941606
+2025-01-21 23:02:18,219 - Metrics for dataset ['chat']: 0.8407695456406058
+2025-01-21 23:03:09,158 - Metrics for dataset ['chat hard']: 0.39655172413793105
+2025-01-21 23:04:07,994 - Metrics for dataset ['safety']: 0.5115894039735099
+2025-01-21 23:06:53,647 - Metrics for dataset ['reasoning']: 0.6610761705101328
+2025-01-21 23:59:45,863 - accuracy: 0.4314367580843226 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_personal_llm_default for dataset ['chat']
+2025-01-22 00:03:01,464 - accuracy: 0.46551724137931033 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_personal_llm_default for dataset ['chat hard']
+2025-01-22 00:07:42,423 - accuracy: 0.478476821192053 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_personal_llm_default for dataset ['safety']
+2025-01-22 00:22:52,103 - accuracy: 0.6422082459818309 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_personal_llm_default for dataset ['reasoning']
+2025-01-22 00:22:52,123 - User accuracy: {None: 0.474} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_personal_llm_default for dataset ['reasoning']

@@ -1,0 +1,13 @@
+2025-01-16 14:24:24,977 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-16 15:11:17,257 - Metrics for dataset [5]: 0.4880952380952381
+2025-01-16 15:11:34,214 - Metrics for dataset [4]: 0.5376344086021505
+2025-01-16 15:11:47,097 - Metrics for dataset [1]: 0.49390243902439024
+2025-01-16 15:12:00,920 - Metrics for dataset [6]: 0.47701149425287354
+2025-01-16 15:12:13,317 - Metrics for dataset [3]: 0.44366197183098594
+2025-01-16 15:12:26,804 - Metrics for dataset [2]: 0.5481927710843374
+2025-01-16 15:23:29,442 - Metrics for dataset ['chat']: 0.5972165370446173
+2025-01-16 15:24:20,101 - Metrics for dataset ['chat hard']: 0.4267241379310345
+2025-01-16 15:25:17,206 - Metrics for dataset ['safety']: 0.4155629139072848
+2025-01-16 15:28:00,562 - Metrics for dataset ['reasoning']: 0.46540880503144655
+2025-01-16 16:08:37,329 - accuracy: 0.5792058943921408 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_psoups_default for dataset ['chat']
+2025-01-16 16:11:53,117 - accuracy: 0.4504310344827586 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_psoups_default for dataset ['chat hard']

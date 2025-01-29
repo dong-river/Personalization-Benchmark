@@ -1,0 +1,44 @@
+2025-01-12 17:08:31,775 - Training and Evaluating for user 1
+2025-01-12 17:09:14,232 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 17:16:29,050 - Training and Evaluating for user 1
+2025-01-12 17:17:05,851 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 17:35:45,528 - Metrics for User 1: 0.7926829268292683
+2025-01-12 17:43:07,565 - Metrics for dataset ['chat']: 0.22799836266884976
+2025-01-12 17:43:45,803 - Metrics for dataset ['chat hard']: 0.5711206896551724
+2025-01-12 17:44:34,266 - Metrics for dataset ['safety']: 0.42218543046357615
+2025-01-12 17:46:49,928 - Metrics for dataset ['reasoning']: 0.4772886093640811
+2025-01-12 17:46:55,787 - Training and Evaluating for user 2
+2025-01-12 17:47:26,320 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 18:08:08,462 - Metrics for User 2: 0.8012048192771084
+2025-01-12 18:15:24,661 - Metrics for dataset ['chat']: 0.7687269750307
+2025-01-12 18:16:02,721 - Metrics for dataset ['chat hard']: 0.41810344827586204
+2025-01-12 18:16:50,571 - Metrics for dataset ['safety']: 0.5579470198675497
+2025-01-12 18:19:05,103 - Metrics for dataset ['reasoning']: 0.4109014675052411
+2025-01-12 18:19:07,681 - Training and Evaluating for user 3
+2025-01-12 18:19:35,152 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 18:38:29,490 - Metrics for User 3: 0.8591549295774648
+2025-01-12 18:45:46,826 - Metrics for dataset ['chat']: 0.1367171510437986
+2025-01-12 18:46:24,912 - Metrics for dataset ['chat hard']: 0.6336206896551724
+2025-01-12 18:47:13,171 - Metrics for dataset ['safety']: 0.478476821192053
+2025-01-12 18:49:29,602 - Metrics for dataset ['reasoning']: 0.3361285814116003
+2025-01-12 18:49:34,733 - Training and Evaluating for user 4
+2025-01-12 18:50:10,367 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 19:12:41,074 - Metrics for User 4: 0.7795698924731183
+2025-01-12 19:19:57,598 - Metrics for dataset ['chat']: 0.8334015554645927
+2025-01-12 19:20:35,670 - Metrics for dataset ['chat hard']: 0.35344827586206895
+2025-01-12 19:21:23,519 - Metrics for dataset ['safety']: 0.5380794701986755
+2025-01-12 19:23:38,094 - Metrics for dataset ['reasoning']: 0.4968553459119497
+2025-01-12 19:23:40,623 - Training and Evaluating for user 5
+2025-01-12 19:24:03,969 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 19:43:22,607 - Metrics for User 5: 0.6726190476190477
+2025-01-12 19:50:38,832 - Metrics for dataset ['chat']: 0.6582071223905035
+2025-01-12 19:51:16,933 - Metrics for dataset ['chat hard']: 0.41379310344827586
+2025-01-12 19:52:04,781 - Metrics for dataset ['safety']: 0.5480132450331126
+2025-01-12 19:54:19,333 - Metrics for dataset ['reasoning']: 0.4723969252271139
+2025-01-12 19:54:22,021 - Training and Evaluating for user 6
+2025-01-12 19:54:53,628 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-12 20:13:50,233 - Metrics for User 6: 0.8333333333333334
+2025-01-12 20:21:07,068 - Metrics for dataset ['chat']: 0.3438395415472779
+2025-01-12 20:21:45,162 - Metrics for dataset ['chat hard']: 0.5905172413793104
+2025-01-12 20:22:33,307 - Metrics for dataset ['safety']: 0.41225165562913907
+2025-01-12 20:24:49,777 - Metrics for dataset ['reasoning']: 0.469601677148847

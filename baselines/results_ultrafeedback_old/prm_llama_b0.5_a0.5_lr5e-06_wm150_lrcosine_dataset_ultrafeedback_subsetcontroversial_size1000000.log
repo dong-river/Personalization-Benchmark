@@ -1,0 +1,6 @@
+2024-12-22 13:17:56,423 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-22 21:18:02,905 - eval_rewards/user_00_accuracies: 0.5202020406723022
+2024-12-22 21:18:02,920 - eval_rewards/user_01_accuracies: 0.5133614540100098
+2024-12-22 21:18:02,920 - eval_rewards/user_02_accuracies: 0.5633333325386047
+2024-12-22 21:18:02,920 - eval_rewards/user_03_accuracies: 0.5868421196937561
+2024-12-22 21:18:02,920 - eval_rewards/user_each_accuracies: 0.5548044443130493

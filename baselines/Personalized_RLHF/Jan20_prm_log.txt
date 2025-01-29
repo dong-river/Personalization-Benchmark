@@ -1,0 +1,21 @@
+Finished loading psoups dataset!
+Finished loading psoups dataset!
+Loaded psoups dataset; train=2000, eval=1000; n_users=6
+Initialized individual user model for Llama!
+Total parameters: 6627682305
+Tunable parameters: 20334592
+Ratio of tunable to total parameters: 0.003068
+Starting Llama Reward Model training with user_model=individual ...
+Train dataset size: 2000, Eval dataset size: 1000
+Finished loading psoups dataset!
+Finished loading psoups dataset!
+Loaded psoups dataset; train=2000, eval=1000; n_users=6
+Initialized individual user model for Llama!
+Total parameters: 6627682305
+Tunable parameters: 20334592
+Ratio of tunable to total parameters: 0.003068
+Starting Llama Reward Model training with user_model=individual ...
+Train dataset size: 2000, Eval dataset size: 1000
+{'loss': 0.7023, 'grad_norm': 20.19683265686035, 'learning_rate': 6.666666666666667e-07, 'rewards/user_00_accuracies': 0.5113636255264282, 'rewards/user_00_chosen': 2.72265625, 'rewards/user_00_rejected': 2.890625, 'rewards/user_01_accuracies': 0.7857142686843872, 'rewards/user_01_chosen': 4.09765625, 'rewards/user_01_rejected': 2.1953125, 'rewards/user_02_accuracies': 0.5, 'rewards/user_02_chosen': 3.734375, 'rewards/user_02_rejected': 3.85546875, 'rewards/user_03_accuracies': 0.1818181872367859, 'rewards/user_03_chosen': 1.888671875, 'rewards/user_03_rejected': 4.5234375, 'rewards/user_04_accuracies': 0.7777777910232544, 'rewards/user_04_chosen': 3.615234375, 'rewards/user_04_rejected': 2.21875, 'rewards/user_05_accuracies': 0.4545454680919647, 'rewards/user_05_chosen': 2.490234375, 'rewards/user_05_rejected': 1.9833984375, 'rewards/user_06_accuracies': 0.4615384638309479, 'rewards/user_06_chosen': 2.12109375, 'rewards/user_06_rejected': 2.998046875, 'rewards/user_each_accuracies': 0.5277777910232544, 'rewards/user_each_chosen': 3.02734375, 'rewards/user_each_rejected': 2.990234375, 'epoch': 0.08}
+{'loss': 0.756, 'grad_norm': 24.797590255737305, 'learning_rate': 1.3333333333333334e-06, 'rewards/user_00_accuracies': 0.47999998927116394, 'rewards/user_00_chosen': 2.548828125, 'rewards/user_00_rejected': 2.92578125, 'rewards/user_01_accuracies': 0.2380952388048172, 'rewards/user_01_chosen': 3.373046875, 'rewards/user_01_rejected': 4.15625, 'rewards/user_02_accuracies': 0.5833333134651184, 'rewards/user_02_chosen': 4.765625, 'rewards/user_02_rejected': 3.09765625, 'rewards/user_03_accuracies': 0.1428571492433548, 'rewards/user_03_chosen': 2.318359375, 'rewards/user_03_rejected': 4.13671875, 'rewards/user_04_accuracies': 0.7272727489471436, 'rewards/user_04_chosen': 4.609375, 'rewards/user_04_rejected': 3.89453125, 'rewards/user_05_accuracies': 0.6428571343421936, 'rewards/user_05_chosen': 2.802734375, 'rewards/user_05_rejected': 1.251953125, 'rewards/user_06_accuracies': 0.23076923191547394, 'rewards/user_06_chosen': 2.263671875, 'rewards/user_06_rejected': 3.91015625, 'rewards/user_each_accuracies': 0.4000000059604645, 'rewards/user_each_chosen': 3.29296875, 'rewards/user_each_rejected': 3.453125, 'epoch': 0.16}
+{'loss': 0.6807, 'grad_norm': 15.792777061462402, 'learning_rate': 2.0000000000000003e-06, 'rewards/user_00_accuracies': 0.4743589758872986, 'rewards/user_00_chosen': 2.958984375, 'rewards/user_00_rejected': 2.931640625, 'rewards/user_01_accuracies': 0.5833333134651184, 'rewards/user_01_chosen': 4.35546875, 'rewards/user_01_rejected': 3.86328125, 'rewards/user_02_accuracies': 0.4000000059604645, 'rewards/user_02_chosen': 3.052734375, 'rewards/user_02_rejected': 3.701171875, 'rewards/user_03_accuracies': 0.38461539149284363, 'rewards/user_03_chosen': 2.267578125, 'rewards/user_03_rejected': 3.033203125, 'rewards/user_04_accuracies': 0.5, 'rewards/user_04_chosen': 3.927734375, 'rewards/user_04_rejected': 3.5, 'rewards/user_05_accuracies': 0.5384615659713745, 'rewards/user_05_chosen': 2.810546875, 'rewards/user_05_rejected': 2.2421875, 'rewards/user_06_accuracies': 0.3636363744735718, 'rewards/user_06_chosen': 1.9267578125, 'rewards/user_06_rejected': 2.734375, 'rewards/user_each_accuracies': 0.46341463923454285, 'rewards/user_each_chosen': 3.12109375, 'rewards/user_each_rejected': 3.21484375, 'epoch': 0.24}

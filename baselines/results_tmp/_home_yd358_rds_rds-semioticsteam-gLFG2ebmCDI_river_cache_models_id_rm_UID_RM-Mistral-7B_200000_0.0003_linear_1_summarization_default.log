@@ -1,0 +1,27 @@
+2024-12-30 16:54:56,859 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 16:54:56,861 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 16:52:27 2024).
+2024-12-30 16:54:57,480 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 16:54:57,481 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 16:52:27 2024).
+2024-12-30 16:55:03,152 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 16:55:03,154 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 13:36:06 2024).
+2024-12-30 16:55:03,578 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 18:11:45,608 - Metrics for dataset [3]: 0.6545454545454545
+2024-12-30 18:12:10,830 - Metrics for dataset [1]: 0.6689895470383276
+2024-12-30 18:12:32,720 - Metrics for dataset [2]: 0.651685393258427
+2024-12-30 18:12:47,267 - Metrics for dataset [4]: 0.64
+2024-12-30 18:13:00,704 - Metrics for dataset [5]: 0.6583850931677019
+2024-12-30 18:23:25,522 - Metrics for dataset ['chat']: 0.966844044207941
+2024-12-30 18:24:13,856 - Metrics for dataset ['chat hard']: 0.6142241379310345
+2024-12-30 18:25:07,896 - Metrics for dataset ['safety']: 0.9321192052980133
+2024-12-30 18:27:53,028 - Metrics for dataset ['reasoning']: 0.827393431167016
+2024-12-30 18:28:17,898 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 18:28:17,899 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 17:37:29 2024).
+2024-12-30 18:28:18,766 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 18:28:18,768 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 18:26:35 2024).
+2024-12-30 18:28:20,036 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 18:28:20,038 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 18:26:35 2024).
+2024-12-30 19:16:56,573 - accuracy: 0.966844044207941 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/RM-Mistral-7B_200000_0.0003_linear_1_summarization_default for dataset ['chat']
+2024-12-30 19:20:23,586 - accuracy: 0.6120689655172413 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/RM-Mistral-7B_200000_0.0003_linear_1_summarization_default for dataset ['chat hard']
+2024-12-30 19:25:11,071 - accuracy: 0.9321192052980133 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/RM-Mistral-7B_200000_0.0003_linear_1_summarization_default for dataset ['safety']
+2024-12-30 19:41:35,279 - accuracy: 0.8308874912648497 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/RM-Mistral-7B_200000_0.0003_linear_1_summarization_default for dataset ['reasoning']
+2024-12-30 19:41:35,349 - User accuracy: {None: 0.668} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/RM-Mistral-7B_200000_0.0003_linear_1_summarization_default for dataset ['reasoning']

@@ -1,0 +1,16 @@
+2024-12-06 07:36:14,989 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-06 08:21:51,739 - Metrics for dataset [5]: 0.5535714285714286
+2024-12-06 08:21:56,847 - Metrics for dataset [4]: 0.5752688172043011
+2024-12-06 08:22:00,843 - Metrics for dataset [1]: 0.4634146341463415
+2024-12-06 08:22:05,129 - Metrics for dataset [6]: 0.4540229885057471
+2024-12-06 08:22:08,967 - Metrics for dataset [3]: 0.352112676056338
+2024-12-06 08:22:13,156 - Metrics for dataset [2]: 0.5240963855421686
+2024-12-06 08:25:09,094 - Metrics for dataset ['chat']: 0.5677445763405649
+2024-12-06 08:25:24,036 - Metrics for dataset ['chat hard']: 0.4224137931034483
+2024-12-06 08:25:40,789 - Metrics for dataset ['safety']: 0.4519867549668874
+2024-12-06 08:26:33,279 - Metrics for dataset ['reasoning']: 0.4723969252271139
+2024-12-06 08:38:07,930 - accuracy: 0.5697912402783463 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_2_psoups_default for dataset ['chat']
+2024-12-06 08:39:05,993 - accuracy: 0.4331896551724138 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_2_psoups_default for dataset ['chat hard']
+2024-12-06 08:40:26,327 - accuracy: 0.4519867549668874 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_2_psoups_default for dataset ['safety']
+2024-12-06 08:45:09,801 - accuracy: 0.49056603773584906 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_2_psoups_default for dataset ['reasoning']
+2024-12-06 08:45:09,808 - User accuracy: {None: 0.499} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_2_psoups_default for dataset ['reasoning']

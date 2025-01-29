@@ -1,0 +1,10 @@
+2024-12-22 02:56:25,488 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-22 03:00:47,515 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-22 03:36:31,300 - Metrics for dataset [3]: 0.5057034220532319
+2024-12-22 03:36:48,329 - Metrics for dataset [1]: 0.484
+2024-12-22 03:37:02,961 - Metrics for dataset [2]: 0.49261083743842365
+2024-12-22 03:37:21,815 - Metrics for dataset [0]: 0.5246478873239436
+2024-12-22 03:40:17,967 - Metrics for dataset ['chat']: 0.6983217355710193
+2024-12-22 03:40:32,907 - Metrics for dataset ['chat hard']: 0.45689655172413796
+2024-12-22 03:40:49,660 - Metrics for dataset ['safety']: 0.5231788079470199
+2024-12-22 03:41:42,215 - Metrics for dataset ['reasoning']: 0.5555555555555556

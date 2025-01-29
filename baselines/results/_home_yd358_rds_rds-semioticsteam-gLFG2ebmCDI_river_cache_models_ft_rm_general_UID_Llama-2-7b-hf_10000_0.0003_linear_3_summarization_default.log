@@ -1,0 +1,21 @@
+2025-01-16 11:55:49,153 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-16 12:52:31,114 - Metrics for dataset [3]: 0.6545454545454545
+2025-01-16 12:52:57,315 - Metrics for dataset [1]: 0.5818815331010453
+2025-01-16 12:53:20,040 - Metrics for dataset [2]: 0.5880149812734082
+2025-01-16 12:53:34,991 - Metrics for dataset [4]: 0.5485714285714286
+2025-01-16 12:53:49,152 - Metrics for dataset [5]: 0.6086956521739131
+2025-01-16 13:04:52,848 - Metrics for dataset ['chat']: 0.7155137126483831
+2025-01-16 13:05:44,300 - Metrics for dataset ['chat hard']: 0.39870689655172414
+2025-01-16 13:06:41,028 - Metrics for dataset ['safety']: 0.6109271523178808
+2025-01-16 13:09:31,259 - Metrics for dataset ['reasoning']: 0.4751921733053808
+2025-01-16 13:58:00,780 - accuracy: 0.45517805976258696 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_summarization_default for dataset ['chat']
+2025-01-16 14:01:17,439 - accuracy: 0.5387931034482759 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_summarization_default for dataset ['chat hard']
+2025-01-16 14:05:56,866 - accuracy: 0.6043046357615894 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_summarization_default for dataset ['safety']
+2025-01-16 14:21:13,445 - accuracy: 0.5213137665967854 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_summarization_default for dataset ['reasoning']
+2025-01-16 14:21:13,516 - User accuracy: {None: 0.521} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_3_summarization_default for dataset ['reasoning']
+2025-01-18 01:45:57,781 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-18 01:46:25,473 - Metrics for dataset [3]: 0.6636363636363637
+2025-01-18 01:46:53,498 - Metrics for dataset [1]: 0.5853658536585366
+2025-01-18 01:47:16,661 - Metrics for dataset [2]: 0.5880149812734082
+2025-01-18 01:47:31,896 - Metrics for dataset [4]: 0.5428571428571428
+2025-01-18 01:47:45,918 - Metrics for dataset [5]: 0.5962732919254659

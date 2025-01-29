@@ -26,6 +26,10 @@ from copy import deepcopy
 import numpy as np
 from datasets import load_dataset
 
+import sys
+sys.path.append('/home/yd358/rds/hpc-work/analysis_pers/baselines')
+from utils import load_user_datasets
+
 @dataclass
 class ScriptArguments:
     output_dir: Optional[str] = field(
@@ -84,78 +88,78 @@ class ScriptArguments:
     )
     other_subsets: str = field(default=None)
 
-def build_vanilla_ultrafeedback_p_dataset(script_args, tokenizer, data_subset = None, return_tokenized=True, prepend_idx=False, subset="full"):
-    def tokenize(sample):                    
-        sample['positive'] = tokenizer.apply_chat_template(
-            sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
-        sample['negative'] = tokenizer.apply_chat_template(
-            sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+# def build_vanilla_ultrafeedback_p_dataset(script_args, tokenizer, data_subset = None, return_tokenized=True, prepend_idx=False, subset="full"):
+#     def tokenize(sample):                    
+#         sample['positive'] = tokenizer.apply_chat_template(
+#             sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+#         sample['negative'] = tokenizer.apply_chat_template(
+#             sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
         
-        tokenized_pos = tokenizer(sample['positive'], truncation=True)
-        tokenized_neg = tokenizer(sample['negative'], truncation=True)
-        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
-        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
-        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
-        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
-        sample["uid"] = sample["uid"]
-        return sample
+#         tokenized_pos = tokenizer(sample['positive'], truncation=True)
+#         tokenized_neg = tokenizer(sample['negative'], truncation=True)
+#         sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+#         sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+#         sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+#         sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+#         sample["uid"] = sample["uid"]
+#         return sample
     
-    reverse_metric_map = {
-        "instruction_following": 0,
-        "honesty": 1,
-        "truthfulness": 2,
-        "helpfulness": 3,
-    }
+#     reverse_metric_map = {
+#         "instruction_following": 0,
+#         "honesty": 1,
+#         "truthfulness": 2,
+#         "helpfulness": 3,
+#     }
 
-    print("Loading UltraFeedback dataset")   
-    if subset == "controversial":
-        train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
-        test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
-    elif subset == 'default':
-        train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
-        test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
-    elif subset == 'ood':
-        train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
-        test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
-    elif subset == 'ood-controversial':
-        train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
-        test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
-    else:
-        raise ValueError(f"Invalid subset: {subset}")
+#     print("Loading UltraFeedback dataset")   
+#     if subset == "controversial":
+#         train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
+#         test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
+#     elif subset == 'default':
+#         train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
+#         test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
+#     elif subset == 'ood':
+#         train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
+#         test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
+#     elif subset == 'ood-controversial':
+#         train_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='train')
+#         test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
+#     else:
+#         raise ValueError(f"Invalid subset: {subset}")
 
-    train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
-    test_dataset = test_dataset.select(range(min(script_args.eval_data_size, len(test_dataset))))
+#     train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
+#     test_dataset = test_dataset.select(range(min(script_args.eval_data_size, len(test_dataset))))
     
-    ## set chosen and rejected to the correct format
-    train_dataset = train_dataset.rename_column("chosen", "chosen_only")
-    train_dataset = train_dataset.rename_column("rejected", "rejected_only")
-    test_dataset = test_dataset.rename_column("chosen", "chosen_only")
-    test_dataset = test_dataset.rename_column("rejected", "rejected_only")
+#     ## set chosen and rejected to the correct format
+#     train_dataset = train_dataset.rename_column("chosen", "chosen_only")
+#     train_dataset = train_dataset.rename_column("rejected", "rejected_only")
+#     test_dataset = test_dataset.rename_column("chosen", "chosen_only")
+#     test_dataset = test_dataset.rename_column("rejected", "rejected_only")
     
     
-    train_dataset = train_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
-    test_dataset = test_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
+#     train_dataset = train_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
+#     test_dataset = test_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
         
-    train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
-    train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
-    test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
-    test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+#     train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+#     train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+#     test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+#     test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
     
 
-    train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
-    test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+#     train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+#     test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
         
-    if return_tokenized:
-        train_dataset = train_dataset.map(tokenize, num_proc=16)
-        test_dataset = test_dataset.map(tokenize, num_proc=16)
+#     if return_tokenized:
+#         train_dataset = train_dataset.map(tokenize, num_proc=16)
+#         test_dataset = test_dataset.map(tokenize, num_proc=16)
 
-    if data_subset == 'all' and data_subset is not None:
-        train_dataset = train_dataset.filter(lambda x: x['data_subset'] == data_subset)
-        test_dataset = test_dataset.filter(lambda x: x['data_subset'] == data_subset)
+#     if data_subset == 'all' and data_subset is not None:
+#         train_dataset = train_dataset.filter(lambda x: x['data_subset'] == data_subset)
+#         test_dataset = test_dataset.filter(lambda x: x['data_subset'] == data_subset)
     
-    print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
-    ## dataset has column: prompt, chosen, rejected, chosen_only, rejected_only, uid
-    return train_dataset, test_dataset
+#     print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
+#     ## dataset has column: prompt, chosen, rejected, chosen_only, rejected_only, uid
+#     return train_dataset, test_dataset
 
 def generate_embeddings_with_llm(args, input_dataset=None):
     """
@@ -165,16 +169,18 @@ def generate_embeddings_with_llm(args, input_dataset=None):
         data_subset = cast(DataSubset, args.data_subset)
 
     if args.model_type == "gpt2":
-        tokenizer = AutoTokenizer.from_pretrained("gpt2", use_auth_token=True)
+        tokenizer = AutoTokenizer.from_pretrained("gpt2")
         model = AutoModelForSequenceClassification.from_pretrained(
             "gpt2", num_labels=args.embed_dim, torch_dtype=torch.bfloat16
         )
         model.score.weight.data *= 0.01
-    elif args.model_type == "llama" or args.model_type == "meta-llama/Llama-2-7b-hf":
-        tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf", use_auth_token=True, add_eos_token=False)
-        model = AutoModelForCausalLM.from_pretrained(
-            "meta-llama/Llama-2-7b-hf", torch_dtype=torch.bfloat16
-        )
+    elif 'llama' in args.model_type:
+        if args.model_type == 'llama':
+            tokenizer = AutoTokenizer.from_pretrained("meta-llama/Llama-2-7b-hf", use_auth_token=True, add_eos_token=False)
+            model = AutoModelForCausalLM.from_pretrained("meta-llama/Llama-2-7b-hf", torch_dtype=torch.bfloat16)
+        else:
+            tokenizer = AutoTokenizer.from_pretrained(args.model_type)
+            model = AutoModelForCausalLM.from_pretrained(args.model_type, torch_dtype=torch.bfloat16)
     else:
         return input_dataset
     model.to("cuda")
@@ -185,12 +191,17 @@ def generate_embeddings_with_llm(args, input_dataset=None):
 
     model.config.pad_token_id = tokenizer.pad_token_id
 
-
-    train_dataset, test_dataset = build_vanilla_ultrafeedback_p_dataset(args, tokenizer, data_subset = args.data_subset, return_tokenized=False, subset='controversial')
+    ## Data_subset is equivalent to the uid
+    train_dataset, test_dataset = load_user_datasets(tokenizer, args, return_tokenized=False, subset=args.ultrafeedback_subset, uid=args.data_subset)
     input_dataset = concatenate_datasets([train_dataset, test_dataset])
+    ## if index not in input_dataset, add it
+    if "Index" not in input_dataset.column_names:
+        input_dataset = input_dataset.add_column("Index", list(range(len(input_dataset))))
 
-    train_dataset_tokenized, test_dataset_tokenized = build_vanilla_ultrafeedback_p_dataset(args, tokenizer, data_subset = args.data_subset, return_tokenized=True, subset='controversial')
+    train_dataset_tokenized, test_dataset_tokenized = load_user_datasets(tokenizer, args, return_tokenized=True, subset= args.ultrafeedback_subset, uid=args.data_subset)
     preprocessed_dataset = concatenate_datasets([train_dataset_tokenized, test_dataset_tokenized])
+    if "Index" not in preprocessed_dataset.column_names:
+        preprocessed_dataset = preprocessed_dataset.add_column("Index", list(range(len(preprocessed_dataset))))
     print(len(preprocessed_dataset))
     
     input_dataset = input_dataset.filter(

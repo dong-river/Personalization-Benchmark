@@ -1,0 +1,15 @@
+2025-01-17 23:53:07,296 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-18 00:16:43,084 - Metrics for dataset [3]: 0.6454545454545455
+2025-01-18 00:17:09,351 - Metrics for dataset [1]: 0.5609756097560976
+2025-01-18 00:17:32,098 - Metrics for dataset [2]: 0.5955056179775281
+2025-01-18 00:17:47,077 - Metrics for dataset [4]: 0.5714285714285714
+2025-01-18 00:18:00,933 - Metrics for dataset [5]: 0.5652173913043478
+2025-01-18 00:28:54,125 - Metrics for dataset ['chat']: 0.5792058943921408
+2025-01-18 00:29:44,916 - Metrics for dataset ['chat hard']: 0.4504310344827586
+2025-01-18 00:30:41,400 - Metrics for dataset ['safety']: 0.5364238410596026
+2025-01-18 00:33:23,467 - Metrics for dataset ['reasoning']: 0.6058700209643606
+2025-01-18 01:20:52,830 - accuracy: 0.5186246418338109 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_summarization_default for dataset ['chat']
+2025-01-18 01:24:10,188 - accuracy: 0.5366379310344828 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_summarization_default for dataset ['chat hard']
+2025-01-18 01:28:55,216 - accuracy: 0.5380794701986755 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_summarization_default for dataset ['safety']
+2025-01-18 01:44:06,850 - accuracy: 0.4723969252271139 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_summarization_default for dataset ['reasoning']
+2025-01-18 01:44:06,852 - User accuracy: {None: 0.516} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_summarization_default for dataset ['reasoning']

@@ -26,7 +26,7 @@ class UserModel(nn.Module):
         # the text should be in the format of "USER: {i}", where i is the user index
         user_identifier_txt = tokenizer.batch_decode(
             user_identifiers, skip_special_tokens=True)
-        user_ids = [int(t.replace("USER: ", "").replace("<|end_of_text|>", "").strip()) for t in user_identifier_txt]
+        user_ids = [int(t.replace("USER: ", "").replace("<|end_of_text|>", "").replace("</s>", "").replace(":", "").strip()) for t in user_identifier_txt]
         user_ids = torch.tensor(np.asarray(user_ids), device=device)
         return user_ids
 

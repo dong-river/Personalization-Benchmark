@@ -1,0 +1,16 @@
+2025-01-16 06:40:40,663 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-16 07:00:27,156 - Metrics for dataset [5]: 0.5654761904761905
+2025-01-16 07:00:44,107 - Metrics for dataset [4]: 0.5053763440860215
+2025-01-16 07:00:57,034 - Metrics for dataset [1]: 0.4329268292682927
+2025-01-16 07:01:10,855 - Metrics for dataset [6]: 0.4540229885057471
+2025-01-16 07:01:23,245 - Metrics for dataset [3]: 0.5422535211267606
+2025-01-16 07:01:36,767 - Metrics for dataset [2]: 0.4879518072289157
+2025-01-16 07:12:25,543 - Metrics for dataset ['chat']: 0.5550552599263201
+2025-01-16 07:13:16,206 - Metrics for dataset ['chat hard']: 0.4870689655172414
+2025-01-16 07:14:12,543 - Metrics for dataset ['safety']: 0.5413907284768212
+2025-01-16 07:16:54,309 - Metrics for dataset ['reasoning']: 0.5394828791055206
+2025-01-16 07:58:14,734 - accuracy: 0.44167007777322964 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_psoups_default for dataset ['chat']
+2025-01-16 08:01:32,105 - accuracy: 0.5560344827586207 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2025-01-16 08:06:16,683 - accuracy: 0.5745033112582781 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_psoups_default for dataset ['safety']
+2025-01-16 08:21:24,895 - accuracy: 0.5185185185185185 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_psoups_default for dataset ['reasoning']
+2025-01-16 08:21:24,896 - User accuracy: {None: 0.492} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_1_psoups_default for dataset ['reasoning']

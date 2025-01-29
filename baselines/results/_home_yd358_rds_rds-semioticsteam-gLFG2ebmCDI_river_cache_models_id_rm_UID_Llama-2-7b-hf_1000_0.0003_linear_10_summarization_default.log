@@ -1,0 +1,15 @@
+2025-01-18 10:51:45,893 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-18 11:15:17,086 - Metrics for dataset [3]: 0.6363636363636364
+2025-01-18 11:15:43,270 - Metrics for dataset [1]: 0.6306620209059234
+2025-01-18 11:16:06,004 - Metrics for dataset [2]: 0.5692883895131086
+2025-01-18 11:16:20,979 - Metrics for dataset [4]: 0.5714285714285714
+2025-01-18 11:16:34,755 - Metrics for dataset [5]: 0.5527950310559007
+2025-01-18 11:27:25,847 - Metrics for dataset ['chat']: 0.8014735980352026
+2025-01-18 11:28:16,460 - Metrics for dataset ['chat hard']: 0.3706896551724138
+2025-01-18 11:29:12,745 - Metrics for dataset ['safety']: 0.5529801324503312
+2025-01-18 11:31:54,373 - Metrics for dataset ['reasoning']: 0.3445143256464011
+2025-01-18 12:20:06,164 - accuracy: 0.5468686041751945 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_summarization_default for dataset ['chat']
+2025-01-18 12:23:22,312 - accuracy: 0.4676724137931034 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_summarization_default for dataset ['chat hard']
+2025-01-18 12:28:07,406 - accuracy: 0.3890728476821192 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_summarization_default for dataset ['safety']
+2025-01-18 12:43:13,114 - accuracy: 0.4276729559748428 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_summarization_default for dataset ['reasoning']
+2025-01-18 12:43:13,116 - User accuracy: {None: 0.461} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/Llama-2-7b-hf_1000_0.0003_linear_10_summarization_default for dataset ['reasoning']

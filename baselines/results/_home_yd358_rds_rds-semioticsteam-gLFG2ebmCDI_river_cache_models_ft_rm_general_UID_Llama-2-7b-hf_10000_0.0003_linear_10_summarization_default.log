@@ -1,0 +1,15 @@
+2025-01-18 01:48:21,898 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-18 04:46:13,513 - Metrics for dataset [3]: 0.6363636363636364
+2025-01-18 04:46:39,827 - Metrics for dataset [1]: 0.6341463414634146
+2025-01-18 04:47:02,649 - Metrics for dataset [2]: 0.6329588014981273
+2025-01-18 04:47:17,691 - Metrics for dataset [4]: 0.56
+2025-01-18 04:47:31,524 - Metrics for dataset [5]: 0.5962732919254659
+2025-01-18 04:58:27,186 - Metrics for dataset ['chat']: 0.7801882930822759
+2025-01-18 04:59:18,211 - Metrics for dataset ['chat hard']: 0.4051724137931034
+2025-01-18 05:00:16,322 - Metrics for dataset ['safety']: 0.5248344370860927
+2025-01-18 05:03:01,657 - Metrics for dataset ['reasoning']: 0.5807127882599581
+2025-01-18 05:50:36,156 - accuracy: 0.6483831354891527 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_10_summarization_default for dataset ['chat']
+2025-01-18 05:53:53,388 - accuracy: 0.4698275862068966 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_10_summarization_default for dataset ['chat hard']
+2025-01-18 05:58:32,534 - accuracy: 0.4768211920529801 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_10_summarization_default for dataset ['safety']
+2025-01-18 06:13:45,069 - accuracy: 0.46680642907058 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_10_summarization_default for dataset ['reasoning']
+2025-01-18 06:13:45,075 - User accuracy: {None: 0.523} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_10000_0.0003_linear_10_summarization_default for dataset ['reasoning']

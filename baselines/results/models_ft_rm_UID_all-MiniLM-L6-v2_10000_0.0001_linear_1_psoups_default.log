@@ -1,0 +1,94 @@
+2025-01-23 18:18:48,697 - Training/Eval for user None
+2025-01-23 18:18:48,940 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:19:01,443 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:20:13,220 - Training/Eval for user None
+2025-01-23 18:20:13,435 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:20:19,619 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:22:36,145 - Training/Eval for user None
+2025-01-23 18:22:36,355 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:22:41,489 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:23:09,771 - Training/Eval for user None
+2025-01-23 18:23:09,984 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:23:15,410 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:24:09,754 - Training/Eval for user None
+2025-01-23 18:24:10,035 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:24:15,075 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:28:27,035 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:30:34,817 - Training/Eval for user None
+2025-01-23 18:30:35,040 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:30:40,238 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:36:02,949 - Training/Eval for user None
+2025-01-23 18:36:03,160 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:36:08,159 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:37:08,049 - Training/Eval for user None
+2025-01-23 18:37:08,254 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:37:13,293 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:38:35,293 - Training/Eval for user None
+2025-01-23 18:38:35,503 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:38:40,751 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:42:18,495 - Training/Eval for user None
+2025-01-23 18:42:19,073 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:42:31,052 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 18:47:33,070 - Training/Eval for user None
+2025-01-23 18:47:33,269 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 18:47:38,538 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:01:35,214 - Training/Eval for user None
+2025-01-23 19:01:35,421 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:01:40,524 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:28:15,849 - Training/Eval for user None
+2025-01-23 19:28:16,050 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:28:20,916 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:32:35,564 - Training/Eval for user None
+2025-01-23 19:32:35,766 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:32:41,604 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:37:51,025 - Training/Eval for user None
+2025-01-23 19:37:51,245 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:37:58,572 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:38:32,104 - Training/Eval for user None
+2025-01-23 19:38:32,307 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:38:37,117 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:39:45,408 - Training/Eval for user None
+2025-01-23 19:39:45,685 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:39:51,778 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:42:46,966 - Training/Eval for user None
+2025-01-23 19:42:48,051 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:42:55,893 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:44:56,558 - Training/Eval for user None
+2025-01-23 19:44:56,912 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:45:01,728 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:47:16,858 - Training/Eval for user None
+2025-01-23 19:47:17,063 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:47:22,292 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:49:54,276 - Training/Eval for user None
+2025-01-23 19:49:54,486 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:49:59,609 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:55:11,126 - Training/Eval for user None
+2025-01-23 19:55:11,334 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:55:16,323 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:56:27,891 - Training/Eval for user None
+2025-01-23 19:56:28,173 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:56:34,487 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:57:13,095 - Training/Eval for user None
+2025-01-23 19:57:13,311 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:57:18,352 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:58:50,162 - Training/Eval for user None
+2025-01-23 19:58:50,435 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:58:56,029 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 19:59:50,183 - Training/Eval for user None
+2025-01-23 19:59:50,393 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 19:59:55,950 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 20:03:12,648 - Training/Eval for user None
+2025-01-23 20:03:12,856 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 20:03:18,269 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 20:03:49,961 - Metrics for User None: 0.0
+2025-01-23 20:06:24,391 - Training/Eval for user None
+2025-01-23 20:06:24,825 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 20:06:30,287 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 20:07:01,555 - Metrics for User None: 0.0
+2025-01-23 20:13:19,324 - Training/Eval for user None
+2025-01-23 20:13:19,529 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-23 20:13:25,371 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-23 20:13:56,763 - Metrics for User None: 0.0
+2025-01-24 21:11:10,727 - Training/Eval for user None
+2025-01-24 21:11:11,824 - Load pretrained SentenceTransformer: sentence-transformers/all-MiniLM-L6-v2
+2025-01-24 21:11:37,211 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.

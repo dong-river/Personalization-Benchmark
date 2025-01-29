@@ -1,0 +1,60 @@
+2025-01-05 12:00:18,484 - Training and Evaluating for user 1
+2025-01-05 12:01:38,922 - Training and Evaluating for user 1
+2025-01-05 12:03:46,641 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 14:56:16,943 - Training and Evaluating for user 1
+2025-01-05 14:57:40,887 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 14:58:05,814 - Metrics for User 1: 0.64
+2025-01-05 15:05:49,886 - Metrics for dataset ['chat']: 0.8943921408104789
+2025-01-05 15:06:31,597 - Metrics for dataset ['chat hard']: 0.3706896551724138
+2025-01-05 15:07:24,519 - Metrics for dataset ['safety']: 0.5496688741721855
+2025-01-05 15:09:50,921 - Metrics for dataset ['reasoning']: 0.6135569531795947
+2025-01-05 15:10:24,001 - Training and Evaluating for user 2
+2025-01-05 15:11:32,753 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 15:11:53,728 - Metrics for User 2: 0.672
+2025-01-05 15:19:27,344 - Metrics for dataset ['chat']: 0.8931641424478101
+2025-01-05 15:20:09,038 - Metrics for dataset ['chat hard']: 0.3706896551724138
+2025-01-05 15:21:01,612 - Metrics for dataset ['safety']: 0.5066225165562914
+2025-01-05 15:23:28,773 - Metrics for dataset ['reasoning']: 0.6170510132774284
+2025-01-05 15:24:02,054 - Training and Evaluating for user 3
+2025-01-05 15:25:14,588 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 15:25:35,521 - Metrics for User 3: 0.464
+2025-01-05 16:03:18,474 - Training and Evaluating for user 1
+2025-01-05 16:03:53,882 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:04:33,057 - Training and Evaluating for user 1
+2025-01-05 16:05:04,551 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:06:37,278 - Metrics for User 1: 0.648
+2025-01-05 16:08:33,420 - Training and Evaluating for user 1
+2025-01-05 16:09:22,883 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:09:55,545 - Metrics for User 1: 0.648
+2025-01-05 16:10:58,060 - Training and Evaluating for user 1
+2025-01-05 16:11:35,189 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:11:57,517 - Metrics for User 1: 0.648
+2025-01-05 16:12:31,757 - Training and Evaluating for user 2
+2025-01-05 16:13:07,324 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:13:27,998 - Metrics for User 2: 0.672
+2025-01-05 16:14:02,211 - Training and Evaluating for user 3
+2025-01-05 16:14:38,101 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:14:58,777 - Metrics for User 3: 0.464
+2025-01-05 16:15:31,523 - Training and Evaluating for user 4
+2025-01-05 16:17:06,018 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:17:26,824 - Metrics for User 4: 0.504
+2025-01-05 16:17:59,426 - Training and Evaluating for user 5
+2025-01-05 16:19:16,761 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:19:37,426 - Metrics for User 5: 0.48
+2025-01-05 16:20:09,531 - Training and Evaluating for user 6
+2025-01-05 16:21:19,122 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:21:39,786 - Metrics for User 6: 0.792
+2025-01-05 16:22:11,484 - Training and Evaluating for user 7
+2025-01-05 16:23:35,137 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:23:55,904 - Metrics for User 7: 0.48
+2025-01-05 16:24:28,132 - Training and Evaluating for user 8
+2025-01-05 16:25:45,800 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 16:26:06,463 - Metrics for User 8: 0.768
+2025-01-05 16:29:22,353 - Accuracy 0.48 for user 1
+2025-01-05 16:31:47,463 - Accuracy 0.528 for user 2
+2025-01-05 16:34:12,581 - Accuracy 0.512 for user 3
+2025-01-05 16:36:37,186 - Accuracy 0.448 for user 4
+2025-01-05 16:39:01,976 - Accuracy 0.48 for user 5
+2025-01-05 16:41:27,226 - Accuracy 0.536 for user 6
+2025-01-05 16:43:51,606 - Accuracy 0.48 for user 7
+2025-01-05 16:46:16,173 - Accuracy 0.536 for user 8

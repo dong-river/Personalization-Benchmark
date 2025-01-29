@@ -1,0 +1,18 @@
+2025-01-16 04:15:58,102 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-16 04:37:30,951 - Metrics for dataset [5]: 0.7122302158273381
+2025-01-16 04:37:56,319 - Metrics for dataset [4]: 0.7559055118110236
+2025-01-16 04:38:22,410 - Metrics for dataset [3]: 0.7350427350427351
+2025-01-16 04:38:45,646 - Metrics for dataset [1]: 0.71900826446281
+2025-01-16 04:39:08,323 - Metrics for dataset [2]: 0.6837606837606838
+2025-01-16 04:39:33,746 - Metrics for dataset [7]: 0.5862068965517241
+2025-01-16 04:39:58,589 - Metrics for dataset [8]: 0.36220472440944884
+2025-01-16 04:40:30,388 - Metrics for dataset [6]: 0.6985294117647058
+2025-01-16 04:51:35,020 - Metrics for dataset ['chat']: 0.7183790421612771
+2025-01-16 04:52:26,058 - Metrics for dataset ['chat hard']: 0.4331896551724138
+2025-01-16 04:53:22,777 - Metrics for dataset ['safety']: 0.5629139072847682
+2025-01-16 04:56:06,308 - Metrics for dataset ['reasoning']: 0.3941299790356394
+2025-01-16 05:48:07,244 - accuracy: 0.22595169873106835 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_1000_0.0003_linear_1_personal_llm_default for dataset ['chat']
+2025-01-16 05:51:24,684 - accuracy: 0.5991379310344828 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_1000_0.0003_linear_1_personal_llm_default for dataset ['chat hard']
+2025-01-16 05:56:03,581 - accuracy: 0.5993377483443708 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_1000_0.0003_linear_1_personal_llm_default for dataset ['safety']
+2025-01-16 06:11:15,377 - accuracy: 0.46680642907058 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_1000_0.0003_linear_1_personal_llm_default for dataset ['reasoning']
+2025-01-16 06:11:15,441 - User accuracy: {None: 0.423} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/Llama-2-7b-hf_1000_0.0003_linear_1_personal_llm_default for dataset ['reasoning']

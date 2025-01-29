@@ -1,0 +1,35 @@
+2025-01-21 20:00:31,663 - Training and Evaluating for user 1
+2025-01-21 20:02:13,340 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 20:26:04,550 - Metrics for User 1: 0.5853658536585366
+2025-01-21 20:33:26,877 - Metrics for dataset ['chat']: 0.8174375767498977
+2025-01-21 20:34:04,969 - Metrics for dataset ['chat hard']: 0.3900862068965517
+2025-01-21 20:34:53,103 - Metrics for dataset ['safety']: 0.5
+2025-01-21 20:37:08,232 - Metrics for dataset ['reasoning']: 0.5562543675751223
+2025-01-21 20:37:11,307 - Training and Evaluating for user 2
+2025-01-21 20:37:52,921 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 20:49:55,474 - Metrics for User 2: 0.6329588014981273
+2025-01-21 20:57:10,687 - Metrics for dataset ['chat']: 0.7400736799017601
+2025-01-21 20:57:48,661 - Metrics for dataset ['chat hard']: 0.38146551724137934
+2025-01-21 20:58:36,379 - Metrics for dataset ['safety']: 0.41721854304635764
+2025-01-21 21:00:50,606 - Metrics for dataset ['reasoning']: 0.5241090146750524
+2025-01-21 21:00:53,555 - Training and Evaluating for user 3
+2025-01-21 21:01:34,178 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 21:12:36,439 - Metrics for User 3: 0.6
+2025-01-21 21:20:05,083 - Metrics for dataset ['chat']: 0.7478510028653295
+2025-01-21 21:20:43,255 - Metrics for dataset ['chat hard']: 0.40948275862068967
+2025-01-21 21:21:31,518 - Metrics for dataset ['safety']: 0.5132450331125827
+2025-01-21 21:23:47,679 - Metrics for dataset ['reasoning']: 0.38504542278127185
+2025-01-21 21:23:52,817 - Training and Evaluating for user 4
+2025-01-21 21:25:15,760 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 21:35:37,622 - Metrics for User 4: 0.5657142857142857
+2025-01-21 21:42:52,868 - Metrics for dataset ['chat']: 0.7474416700777732
+2025-01-21 21:43:30,864 - Metrics for dataset ['chat hard']: 0.41594827586206895
+2025-01-21 21:44:18,592 - Metrics for dataset ['safety']: 0.5480132450331126
+2025-01-21 21:46:32,833 - Metrics for dataset ['reasoning']: 0.37596086652690425
+2025-01-21 21:46:35,765 - Training and Evaluating for user 5
+2025-01-21 21:47:19,783 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-21 21:57:16,751 - Metrics for User 5: 0.4782608695652174
+2025-01-21 22:04:32,334 - Metrics for dataset ['chat']: 0.7896029471960704
+2025-01-21 22:05:10,313 - Metrics for dataset ['chat hard']: 0.39870689655172414
+2025-01-21 22:05:58,045 - Metrics for dataset ['safety']: 0.5066225165562914
+2025-01-21 22:08:12,313 - Metrics for dataset ['reasoning']: 0.4528301886792453

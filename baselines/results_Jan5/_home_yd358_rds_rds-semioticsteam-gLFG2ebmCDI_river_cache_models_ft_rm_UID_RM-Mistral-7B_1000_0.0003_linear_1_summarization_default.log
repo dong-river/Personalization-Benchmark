@@ -1,0 +1,78 @@
+2024-12-30 12:39:30,903 - Training and Evaluating for user 1
+2024-12-30 12:42:15,109 - Training and Evaluating for user 1
+2024-12-30 12:46:08,079 - Training and Evaluating for user 1
+2024-12-30 12:46:17,207 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 12:46:17,208 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 12:44:07 2024).
+2024-12-30 12:46:17,972 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 12:46:17,973 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 12:44:07 2024).
+2024-12-30 12:46:27,109 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 12:47:52,291 - Metrics for User 1: 0.6759581881533101
+2024-12-30 12:47:53,139 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 12:47:53,155 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Wed Dec 25 18:25:59 2024).
+2024-12-30 12:49:22,530 - Training and Evaluating for user 1
+2024-12-30 12:49:31,617 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 12:49:31,618 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 12:49:07 2024).
+2024-12-30 12:49:32,231 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 12:49:32,232 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 12:49:07 2024).
+2024-12-30 12:49:38,247 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 12:50:41,941 - Metrics for User 1: 0.6759581881533101
+2024-12-30 12:50:42,569 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 12:50:42,570 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Wed Dec 25 18:25:59 2024).
+2024-12-30 16:50:16,694 - Training and Evaluating for user 1
+2024-12-30 16:51:04,034 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 16:51:04,109 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 13:51:32 2024).
+2024-12-30 16:51:15,330 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 16:51:15,331 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 13:51:32 2024).
+2024-12-30 16:51:23,826 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 16:53:32,305 - Metrics for User 1: 0.6724738675958188
+2024-12-30 16:53:32,900 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 16:53:32,903 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 13:36:06 2024).
+2024-12-30 17:03:55,321 - Metrics for dataset ['chat']: 0.9647973802701596
+2024-12-30 17:04:43,478 - Metrics for dataset ['chat hard']: 0.6142241379310345
+2024-12-30 17:05:36,942 - Metrics for dataset ['safety']: 0.9221854304635762
+2024-12-30 17:08:18,844 - Metrics for dataset ['reasoning']: 0.8497554157931516
+2024-12-30 17:08:21,571 - Training and Evaluating for user 2
+2024-12-30 17:08:32,055 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:08:32,057 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:08:05 2024).
+2024-12-30 17:08:32,640 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:08:32,641 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:08:05 2024).
+2024-12-30 17:08:34,259 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 17:09:30,925 - Metrics for User 2: 0.6666666666666666
+2024-12-30 17:09:31,555 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 17:09:31,556 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 13:36:06 2024).
+2024-12-30 17:19:53,674 - Metrics for dataset ['chat']: 0.9647973802701596
+2024-12-30 17:20:41,828 - Metrics for dataset ['chat hard']: 0.6099137931034483
+2024-12-30 17:21:35,273 - Metrics for dataset ['safety']: 0.9221854304635762
+2024-12-30 17:24:17,078 - Metrics for dataset ['reasoning']: 0.8511530398322851
+2024-12-30 17:24:19,837 - Training and Evaluating for user 3
+2024-12-30 17:24:55,814 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:24:55,816 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:23:56 2024).
+2024-12-30 17:24:56,408 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:24:56,409 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:23:56 2024).
+2024-12-30 17:24:57,377 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 17:25:27,943 - Metrics for User 3: 0.6181818181818182
+2024-12-30 17:25:28,829 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 17:25:28,830 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 17:12:08 2024).
+2024-12-30 17:35:51,005 - Metrics for dataset ['chat']: 0.9647973802701596
+2024-12-30 17:36:39,157 - Metrics for dataset ['chat hard']: 0.6099137931034483
+2024-12-30 17:37:32,602 - Metrics for dataset ['safety']: 0.9221854304635762
+2024-12-30 17:40:14,403 - Metrics for dataset ['reasoning']: 0.8511530398322851
+2024-12-30 17:40:17,077 - Training and Evaluating for user 4
+2024-12-30 17:40:27,563 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:40:27,564 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:39:23 2024).
+2024-12-30 17:40:28,286 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:40:28,288 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:39:23 2024).
+2024-12-30 17:40:29,261 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-30 17:41:36,716 - Metrics for User 4: 0.64
+2024-12-30 17:41:37,327 - Using the latest cached version of the dataset since allenai/reward-bench couldn't be found on the Hugging Face Hub
+2024-12-30 17:41:37,328 - Found the latest cached dataset configuration 'default' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/allenai___reward-bench/default/0.0.0/168d848cdbbea9764fae4a544dc9ca1e6cca4931 (last modified on Mon Dec 30 17:37:29 2024).
+2024-12-30 17:51:59,446 - Metrics for dataset ['chat']: 0.9643880474826033
+2024-12-30 17:52:47,600 - Metrics for dataset ['chat hard']: 0.6142241379310345
+2024-12-30 17:53:41,103 - Metrics for dataset ['safety']: 0.9221854304635762
+2024-12-30 17:56:27,931 - Metrics for dataset ['reasoning']: 0.8490566037735849
+2024-12-30 17:56:31,693 - Training and Evaluating for user 5
+2024-12-30 17:56:55,466 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:56:55,491 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:40:29 2024).
+2024-12-30 17:56:59,052 - Using the latest cached version of the dataset since openai/summarize_from_feedback couldn't be found on the Hugging Face Hub
+2024-12-30 17:56:59,054 - Found the latest cached dataset configuration 'comparisons' at /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/hf_cache/datasets/openai___summarize_from_feedback/comparisons/0.0.0/b8f7d168b6f4e95b2a92e84768bd6c955bed2f29 (last modified on Mon Dec 30 17:40:29 2024).
+2024-12-30 17:57:09,665 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.

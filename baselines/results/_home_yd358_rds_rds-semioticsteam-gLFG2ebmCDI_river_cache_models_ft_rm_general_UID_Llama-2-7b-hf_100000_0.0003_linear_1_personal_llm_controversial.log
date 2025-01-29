@@ -1,0 +1,24 @@
+2025-01-05 14:33:49,605 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 14:38:00,130 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 14:38:22,742 - Metrics for dataset [1]: 0.584
+2025-01-05 14:38:43,827 - Metrics for dataset [6]: 0.648
+2025-01-05 14:39:05,007 - Metrics for dataset [4]: 0.512
+2025-01-05 14:39:26,131 - Metrics for dataset [5]: 0.48
+2025-01-05 14:39:47,213 - Metrics for dataset [2]: 0.72
+2025-01-05 14:40:08,305 - Metrics for dataset [3]: 0.416
+2025-01-05 14:40:29,393 - Metrics for dataset [8]: 0.304
+2025-01-05 14:40:50,480 - Metrics for dataset [7]: 0.424
+2025-01-05 14:48:25,434 - Metrics for dataset ['chat']: 0.9128121162505116
+2025-01-05 14:49:07,397 - Metrics for dataset ['chat hard']: 0.3297413793103448
+2025-01-05 14:49:59,988 - Metrics for dataset ['safety']: 0.5066225165562914
+2025-01-05 14:52:25,432 - Metrics for dataset ['reasoning']: 0.6540880503144654
+2025-01-05 14:57:36,904 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 15:06:33,019 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 15:08:44,823 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2025-01-05 15:10:17,672 - Metrics for dataset [1]: 0.592
+2025-01-05 15:11:48,336 - Metrics for dataset [6]: 0.64
+2025-01-05 15:13:20,287 - Metrics for dataset [4]: 0.504
+2025-01-05 15:14:52,990 - Metrics for dataset [5]: 0.504
+2025-01-05 15:16:26,459 - Metrics for dataset [2]: 0.72
+2025-01-05 15:18:00,236 - Metrics for dataset [3]: 0.464
+2025-01-05 15:19:34,167 - Metrics for dataset [8]: 0.312

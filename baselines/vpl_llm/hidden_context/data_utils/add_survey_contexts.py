@@ -31,15 +31,24 @@ class ScriptArguments:
     data_path: str = field(
         metadata={"help": "Directory where the original data is stored."}
     )
-    train_dataset_size: Optional[int] = field(
-        default=64000,
-        metadata={"help": "The size of the training dataset."},
-    )
-    eval_data_size: Optional[int] = field(
-        default=6400,
-        metadata={"help": "The size of the eval dataset."},
+    data_type: str = field(
+        default="psoups", ##ultrafeedback
+        metadata={"help": "The dataset used for training and testing"}
     )
     
+    train_dataset_size: Optional[int] = field(
+        default=200000,
+        metadata={"help": "The size of the training dataset."},
+    )
+    eval_dataset_size: Optional[int] = field(
+        default=100000,
+        metadata={"help": "The size of the eval dataset."},
+    )
+    ultrafeedback_subset: Optional[str] = field(
+        default="controversial",
+        metadata={"help": "The subset of the ultrafeedback dataset to use. Must be one of default, controversial, or ood, ood-controversial."},
+    )
+    ## This is like user id
     data_subset: str = field(
         default="helpful",
         metadata={
@@ -88,7 +97,9 @@ class ScriptArguments:
             "help": "Whether a synthetic dataset is used."
         }
     )
-    other_subsets: str = field(default=None)
+    other_subsets: str = field(
+        default='single'
+    )
     survey_size: int = field(
         default=8,
         metadata={
@@ -102,7 +113,7 @@ class ScriptArguments:
         }
     )
     controversial_only: bool = field(
-        default=True,
+        default=False,
         metadata={
             "help": "Whether to only generate controversial data points."
         }
@@ -201,13 +212,14 @@ class ScriptArguments:
 #     return output
 
 def generate_contexts(args, input_dataset, survey_dataset):
+    print('generating contexts')
     # Create output directory if it doesn't exist
     output_dir = os.path.join(args.output_dir, f"{args.model_type}", f"{args.data_subset}")
     os.makedirs(output_dir, exist_ok=True)
 
     # Filter input_dataset if necessary
-    if args.controversial_only:
-        input_dataset = input_dataset.filter(lambda x: x['controversial'] == True)
+    # if args.controversial_only:
+    #     input_dataset = input_dataset.filter(lambda x: x['controversial'] == True)
 
     dataset_size = len(input_dataset)
     K = args.num_duplicates if args.data_split == 'train' else 1
@@ -272,7 +284,11 @@ def generate_contexts(args, input_dataset, survey_dataset):
     # Concatenate datasets and save to JSONL
     output = concatenate_datasets(dataset_list)
     print(f"saving to {os.path.join(output_dir, f'{args.data_split}.jsonl')}")
-    output.to_json(os.path.join(output_dir, f"{args.data_split}.jsonl"))
+    output_path = os.path.join(output_dir, f"{args.data_split}.jsonl")
+    if not os.path.exists(output_path):
+        output.to_json(os.path.join(output_dir, f"{args.data_split}.jsonl"))
+    else:
+        print("File already exists")
     return output
 
 

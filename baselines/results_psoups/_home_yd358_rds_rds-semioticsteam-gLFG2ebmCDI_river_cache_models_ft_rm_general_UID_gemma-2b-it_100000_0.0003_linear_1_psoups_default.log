@@ -1,0 +1,65 @@
+2024-12-06 07:24:46,423 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-06 07:31:30,589 - Metrics for dataset [5]: 0.5595238095238095
+2024-12-06 07:31:30,589 - Metrics for dataset [5]: 0.5595238095238095
+2024-12-06 07:31:30,589 - Metrics for dataset [5]: 0.5595238095238095
+2024-12-06 07:31:30,589 - Metrics for dataset [5]: 0.5595238095238095
+2024-12-06 07:31:32,073 - Metrics for dataset [4]: 0.5268817204301075
+2024-12-06 07:31:32,073 - Metrics for dataset [4]: 0.5268817204301075
+2024-12-06 07:31:32,073 - Metrics for dataset [4]: 0.5268817204301075
+2024-12-06 07:31:32,074 - Metrics for dataset [4]: 0.5268817204301075
+2024-12-06 07:31:33,412 - Metrics for dataset [1]: 0.4878048780487805
+2024-12-06 07:31:33,412 - Metrics for dataset [1]: 0.4878048780487805
+2024-12-06 07:31:33,412 - Metrics for dataset [1]: 0.4878048780487805
+2024-12-06 07:31:33,413 - Metrics for dataset [1]: 0.4878048780487805
+2024-12-06 07:31:34,806 - Metrics for dataset [6]: 0.4942528735632184
+2024-12-06 07:31:34,806 - Metrics for dataset [6]: 0.4942528735632184
+2024-12-06 07:31:34,806 - Metrics for dataset [6]: 0.4942528735632184
+2024-12-06 07:31:34,807 - Metrics for dataset [6]: 0.4942528735632184
+2024-12-06 07:31:36,332 - Metrics for dataset [3]: 0.45774647887323944
+2024-12-06 07:31:36,332 - Metrics for dataset [3]: 0.45774647887323944
+2024-12-06 07:31:36,332 - Metrics for dataset [3]: 0.45774647887323944
+2024-12-06 07:31:36,333 - Metrics for dataset [3]: 0.45774647887323944
+2024-12-06 07:31:37,773 - Metrics for dataset [2]: 0.5120481927710844
+2024-12-06 07:31:37,774 - Metrics for dataset [2]: 0.5120481927710844
+2024-12-06 07:31:37,774 - Metrics for dataset [2]: 0.5120481927710844
+2024-12-06 07:31:37,774 - Metrics for dataset [2]: 0.5120481927710844
+2024-12-06 07:32:41,495 - Metrics for dataset ['chat']: 0.5873925501432665
+2024-12-06 07:32:41,495 - Metrics for dataset ['chat']: 0.5873925501432665
+2024-12-06 07:32:41,495 - Metrics for dataset ['chat']: 0.5873925501432665
+2024-12-06 07:32:41,496 - Metrics for dataset ['chat']: 0.5873925501432665
+2024-12-06 07:32:46,986 - Metrics for dataset ['chat hard']: 0.44612068965517243
+2024-12-06 07:32:46,986 - Metrics for dataset ['chat hard']: 0.44612068965517243
+2024-12-06 07:32:46,986 - Metrics for dataset ['chat hard']: 0.44612068965517243
+2024-12-06 07:32:46,986 - Metrics for dataset ['chat hard']: 0.44612068965517243
+2024-12-06 07:32:52,556 - Metrics for dataset ['safety']: 0.48841059602649006
+2024-12-06 07:32:52,556 - Metrics for dataset ['safety']: 0.48841059602649006
+2024-12-06 07:32:52,556 - Metrics for dataset ['safety']: 0.48841059602649006
+2024-12-06 07:32:52,557 - Metrics for dataset ['safety']: 0.48841059602649006
+2024-12-06 07:33:10,111 - Metrics for dataset ['reasoning']: 0.5904961565338924
+2024-12-06 07:33:10,111 - Metrics for dataset ['reasoning']: 0.5904961565338924
+2024-12-06 07:33:10,111 - Metrics for dataset ['reasoning']: 0.5904961565338924
+2024-12-06 07:33:10,112 - Metrics for dataset ['reasoning']: 0.5904961565338924
+2024-12-06 07:44:48,610 - accuracy: 0.5853458862054851 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 07:44:48,907 - accuracy: 0.5853458862054851 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 07:44:49,411 - accuracy: 0.5853458862054851 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 07:44:49,837 - accuracy: 0.5853458862054851 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 07:45:46,782 - accuracy: 0.4525862068965517 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 07:45:47,373 - accuracy: 0.4525862068965517 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 07:45:47,676 - accuracy: 0.4525862068965517 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 07:45:48,399 - accuracy: 0.4525862068965517 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 07:47:56,842 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-06 07:57:48,575 - Metrics for dataset [5]: 0.44642857142857145
+2024-12-06 07:57:50,169 - Metrics for dataset [4]: 0.4731182795698925
+2024-12-06 07:57:51,620 - Metrics for dataset [1]: 0.5060975609756098
+2024-12-06 07:57:53,097 - Metrics for dataset [6]: 0.5057471264367817
+2024-12-06 07:57:54,567 - Metrics for dataset [3]: 0.4084507042253521
+2024-12-06 07:57:55,969 - Metrics for dataset [2]: 0.5120481927710844
+2024-12-06 07:59:02,691 - Metrics for dataset ['chat']: 0.5235366352844862
+2024-12-06 07:59:08,376 - Metrics for dataset ['chat hard']: 0.47629310344827586
+2024-12-06 07:59:14,178 - Metrics for dataset ['safety']: 0.3228476821192053
+2024-12-06 07:59:33,445 - Metrics for dataset ['reasoning']: 0.4276729559748428
+2024-12-06 08:11:08,041 - accuracy: 0.5259926320098239 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 08:12:06,460 - accuracy: 0.4676724137931034 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 08:13:27,146 - accuracy: 0.3228476821192053 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['safety']
+2024-12-06 08:18:08,265 - accuracy: 0.44234800838574423 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['reasoning']
+2024-12-06 08:18:08,265 - User accuracy: {None: 0.481} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/ft_rm_general/None/gemma-2b-it_100000_0.0003_linear_1_psoups_default for dataset ['reasoning']

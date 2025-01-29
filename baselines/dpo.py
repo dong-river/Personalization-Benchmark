@@ -48,7 +48,8 @@ class ScriptArguments:
     )
     
     data_path: str = field(
-        default="openbmb/UltraFeedback",
+        default="ultrafeedback",
+        choices=["ultrafeedback", "persona"]
     )
     peft: Optional[bool] = field(
         default=True,
@@ -149,6 +150,8 @@ if __name__ == "__main__":
             tokenizer, model = get_tokenizer_and_model(script_args, model_type="lm", use_peft=script_args.peft)
             ref_model = AutoModelForCausalLM.from_pretrained(script_args.model_name, torch_dtype=torch.bfloat16)
             
+            ## DPO MUST reset chosen to chosen_only
+            
             train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid, return_tokenized=False)
             train_dataset = train_dataset.rename_column("chosen", "chosen_messages")
             train_dataset = train_dataset.rename_column("rejected", "rejected_messages")
@@ -185,8 +188,7 @@ if __name__ == "__main__":
                 report_to='wandb',
                 run_name=output_name.replace('/', '_'),
             )
-        
-            
+
             # Train the model
             trainer = DPOTrainer(
                 model=model,

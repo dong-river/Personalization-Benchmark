@@ -1,0 +1,16 @@
+2024-12-06 07:36:10,825 - Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+2024-12-06 07:59:46,443 - Metrics for dataset [5]: 0.5535714285714286
+2024-12-06 07:59:51,554 - Metrics for dataset [4]: 0.5376344086021505
+2024-12-06 07:59:55,568 - Metrics for dataset [1]: 0.5548780487804879
+2024-12-06 08:00:00,111 - Metrics for dataset [6]: 0.4482758620689655
+2024-12-06 08:00:03,948 - Metrics for dataset [3]: 0.5704225352112676
+2024-12-06 08:00:08,133 - Metrics for dataset [2]: 0.5662650602409639
+2024-12-06 08:03:04,245 - Metrics for dataset ['chat']: 0.5096193205075726
+2024-12-06 08:03:19,202 - Metrics for dataset ['chat hard']: 0.48060344827586204
+2024-12-06 08:03:36,145 - Metrics for dataset ['safety']: 0.4867549668874172
+2024-12-06 08:04:28,698 - Metrics for dataset ['reasoning']: 0.5045422781271838
+2024-12-06 08:16:07,902 - accuracy: 0.5096193205075726 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_1_psoups_default for dataset ['chat']
+2024-12-06 08:17:06,323 - accuracy: 0.47413793103448276 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_1_psoups_default for dataset ['chat hard']
+2024-12-06 08:18:27,041 - accuracy: 0.4867549668874172 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_1_psoups_default for dataset ['safety']
+2024-12-06 08:23:08,306 - accuracy: 0.5122292103424179 for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_1_psoups_default for dataset ['reasoning']
+2024-12-06 08:23:08,306 - User accuracy: {None: 0.533} for model /home/yd358/rds/rds-semioticsteam-gLFG2ebmCDI/river_cache/models/id_rm/None/gemma-2b-it_200000_0.0003_linear_1_psoups_default for dataset ['reasoning']

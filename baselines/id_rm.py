@@ -14,7 +14,7 @@ from transformers import (
 )
 from transformers.utils import PaddingStrategy
 from datasets import Dataset, load_dataset
-from utils import get_tokenizer_and_model, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm, metric_map, load_user_datasets
+from utils import get_tokenizer_and_model, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm, metric_map, load_user_datasets, load_reward_bench
 
 # Define and parse arguments.
 @dataclass
@@ -38,17 +38,22 @@ class ScriptArguments:
         default=64000,
         metadata={"help": "The size of the training dataset."},
     )
-    eval_data_size: Optional[int] = field(
+    eval_dataset_size: Optional[int] = field(
         default=6400,
         metadata={"help": "The size of the eval dataset."},
     )
     
+    data_type: str = field(
+        default="ultrafeedback",
+        metadata={"help": "The dataset used for training and testing"}
+    )
+    subset: Optional[str] = field(
+        default='default', ## ood, controversial
+        metadata={"help": "The subset of the dataset to use."},
+    )
     peft: Optional[bool] = field(
         default=True,
         metadata={"help": "If you want to use the PEFT model."},
-    )
-    data_path: str = field(
-        default="openbmb/UltraFeedback",
     )
     lora_rank: Optional[int] = field(
         default=8,
@@ -193,24 +198,31 @@ if __name__ == "__main__":
     method = "id_rm"
     uids = get_uids(script_args)
     uid=None
-    log_path = '/home/yd358/rds/hpc-work/analysis_pers/results/logfile.log'
+    
+    base_output_name = (
+        f"{script_args.log_dir}/{method}/UID/"
+        f"{model_name_split}"
+        f"_{script_args.train_dataset_size}_{script_args.learning_rate}"
+        f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}_{script_args.data_type}_{script_args.subset}"
+    )
+    log_path = f'results/{base_output_name.replace("/", "_")}.log'
     logging.basicConfig(level=logging.INFO, filename=log_path, format='%(asctime)s - %(message)s')
 
     if script_args.train:
+            output_name = base_output_name.replace("UID", str(uid))
             print(f"Training")
-            output_name = (
-                f"{script_args.log_dir}/{method}/{str(uid)}/"
-                f"{model_name_split}"
-                f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-            )
             if os.path.exists(os.path.join(output_name, 'adapter_model.safetensors')):
                 print(f"Model for user {uid} already exists. Skipping training.")
                 pass
             
             tokenizer, model = get_tokenizer_and_model(script_args, model_type="rm", use_peft=script_args.peft)
 
-            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid=None, prepend_idx=True)
+            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid=None, prepend_idx=True, subset=script_args.subset)
+            print(f"training dataset size: {len(train_dataset)}, test dataset size: {len(eval_dataset)}")
+            ## We need to evaluate the subset for each user using trainer
+            eval_dataset_list = [eval_dataset.filter(lambda x: x['uid'] == uid) for uid in eval_dataset.unique('uid')]
+            reward_bench_datasets = load_reward_bench(tokenizer)
+            eval_dataset_list += reward_bench_datasets
             
             training_args = TrainingArguments(
                 output_dir=output_name,
@@ -220,7 +232,7 @@ if __name__ == "__main__":
                 num_train_epochs=script_args.num_train_epochs,
                 weight_decay=script_args.weight_decay,
                 evaluation_strategy="steps",
-                eval_steps=0.1,
+                eval_steps=0.2,
                 save_strategy="steps",
                 save_steps=script_args.save_every_steps,
                 gradient_accumulation_steps=script_args.gradient_accumulation_steps,
@@ -253,7 +265,12 @@ if __name__ == "__main__":
             )
             
             trainer.train()
-
+            
+            for idx, eval_dataset in enumerate(eval_dataset_list, 1):
+                dataset_name = eval_dataset.unique('key') if 'key' in eval_dataset.column_names else eval_dataset.unique('uid')
+                metrics = trainer.evaluate(eval_dataset=eval_dataset)
+                logging.info(f"Metrics for dataset {dataset_name}: {metrics['eval_accuracy']}")
+            
             print("Saving the model")
             os.makedirs(output_name, exist_ok=True)
             model.to("cpu")
@@ -270,24 +287,20 @@ if __name__ == "__main__":
             torch.cuda.empty_cache()
             gc.collect()
 
-    if script_args.eval:
-        tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
-        user_acc = {}
-        
-        for uid in uids:
+    if script_args.eval:        
+            tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
+            user_acc = {}
+            reward_bench_datasets = load_reward_bench(tokenizer)
+            
             train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
             print(f"Evaluating for user {uid}")
-            output_name = (
-                f"{script_args.log_dir}/{method}/None/"
-                f"{model_name_split}"
-                f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-            )
+            output_name = base_output_name.replace("UID", str(uid))
             model = load_peft_model_rm(output_name)
             model.eval()
             acc = []
-            
+
             for sample in eval_dataset:
+                print(sample)
                 input_ids = torch.tensor(sample['input_ids_chosen']).unsqueeze(0).to('cuda')
                 attention_mask = torch.tensor(sample['attention_mask_chosen']).unsqueeze(0).to('cuda')
                 score_chosen = model(input_ids, attention_mask)[0][0].item()
@@ -296,20 +309,28 @@ if __name__ == "__main__":
                 score_rejected = model(input_ids, attention_mask)[0][0].item()
                 acc.append(score_chosen > score_rejected)
             user_acc[uid] = np.mean(acc)
-        logging.info(f"User accuracy: {user_acc} for model {output_name}")
+            
+            for eval_dataset in reward_bench_datasets:
+                dataset_name = eval_dataset.unique('key') if 'key' in eval_dataset.column_names else 'eval_set'
+                acc = []
+                for sample in eval_dataset:
+                    input_ids = torch.tensor(sample['input_ids_chosen']).unsqueeze(0).to('cuda')
+                    attention_mask = torch.tensor(sample['attention_mask_chosen']).unsqueeze(0).to('cuda')
+                    score_chosen = model(input_ids, attention_mask)[0][0].item()
+                    input_ids = torch.tensor(sample['input_ids_rejected']).unsqueeze(0).to('cuda')
+                    attention_mask = torch.tensor(sample['attention_mask_rejected']).unsqueeze(0).to('cuda')
+                    score_rejected = model(input_ids, attention_mask)[0][0].item()
+                    acc.append(score_chosen > score_rejected)
+                acc = np.mean(acc)
+                logging.info(f"accuracy: {acc} for model {output_name} for dataset {dataset_name}")
+            logging.info(f"User accuracy: {user_acc} for model {output_name} for dataset {dataset_name}")
+        
         
     elif script_args.eval_type == 'lm':
             tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
             user_win_rate = {}
             for uid in uids:
-                print('evaluating for user', uid)
-                output_name = (
-                    f"{script_args.log_dir}/FT_RM/None/"
-                    f"{model_name_split}"
-                    f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                    f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-                )
-                
+                print('evaluating for user', uid)                
                 rm_model = load_peft_model_rm(output_name)
                 rm_model.eval()
                 win_lose_list = []

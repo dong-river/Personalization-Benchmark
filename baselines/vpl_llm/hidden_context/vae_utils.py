@@ -157,6 +157,22 @@ class VAEModel(nn.Module):
 
     def save_model(self, path):
         torch.save(self, path)
+    
+    @classmethod
+    def load_model(self, path, tokenizer):
+        import os
+        from peft import PeftModel, PeftConfig
+        from transformers import AutoModelForSequenceClassification
+        peft_config = PeftConfig.from_pretrained(path)
+        base_model = AutoModelForSequenceClassification.from_pretrained(peft_config.base_model_name_or_path, torch_dtype=torch.bfloat16, num_labels=4096)
+        peft_model = PeftModel.from_pretrained(base_model, path)
+        peft_model.config.pad_token_id = tokenizer.pad_token_id
+
+        vae_model_path = os.path.join(path, "model.pt")
+        vae_model = torch.load(vae_model_path, map_location="cuda:0")
+        vae_model.eval()
+        vae_model.llm_encoder = peft_model
+        return vae_model
 
 
 class VAETrainer(Trainer):
@@ -258,8 +274,8 @@ class VAETrainer(Trainer):
             seq_start_end,
             user_type,
             ground_truth_user_vector=False,  # todo: set to True for debug usage
-            mask_chosen=inputs["attention_mask_chosen"],
-            mask_rejected=inputs["attention_mask_rejected"],
+            # mask_chosen=inputs["attention_mask_chosen"],
+            # mask_rejected=inputs["attention_mask_rejected"],
         )
 
         reproduction_loss = self.loss(rewards_chosen, rewards_rejected)

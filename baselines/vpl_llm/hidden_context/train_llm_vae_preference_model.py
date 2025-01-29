@@ -5,6 +5,7 @@ from typing import Any, Dict, List, Optional, Type, Union, cast
 import numpy as np
 import torch
 import random
+import logging
 from peft import LoraConfig, TaskType, get_peft_model
 from transformers import (
     AutoModelForSequenceClassification,
@@ -26,6 +27,9 @@ from .train_llm_preference_model import (
     concatenate_datasets
 )
 
+import sys
+sys.path.append('/home/yd358/rds/hpc-work/analysis_pers/baselines')
+from utils import load_user_datasets, load_reward_bench
 
 @dataclass
 class ScriptArguments:
@@ -46,6 +50,9 @@ class ScriptArguments:
     gradient_accumulation_steps: int = field(default=1)
     learning_rate: float = field(default=3e-6)
     weight_decay: float = field(default=0.001)
+    lora_rank: int = field(default=8)
+    lora_alpha: int = field(default=16)
+    lora_dropout: float = field(default=0.1)
     model_name: str = field(
         default="gpt2",
         metadata={
@@ -56,6 +63,9 @@ class ScriptArguments:
     data_path: str = field(
         default="Anthropic/hh-rlhf",
     )
+    ## Newly added
+    data_type: str = field(default='summarization') #psoups, ultrafeedback-p
+    
     data_subset: str = field(
         default="both",
         metadata={
@@ -273,15 +283,15 @@ class RewardDataCollatorWithPadding:
     return_tensors: str = "pt"
 
     def __call__(self, features: List[Dict[str, Any]]) -> Dict[str, Any]:
-        if self.args.other_subsets is None:
+        if self.args.data_type is None:
             user_mapping = {
                 "helpful": 0,
                 "harmless": 1,
             }
         else:   # TODO: set subsets here
-            if self.args.other_subsets == 'ultra_feedback':
+            if self.args.data_type == 'ultra_feedback':
                 subsets = ['helpfulness', 'honesty', 'instruction_following', 'truthfulness']
-            elif self.args.other_subsets == 'single' or self.args.other_subsets == '84':
+            elif self.args.data_type == 'single' or self.args.data_type == '84':
                 subsets = ['8', '4', '2', '1']
             else:
                 subsets = []
@@ -315,6 +325,7 @@ class RewardDataCollatorWithPadding:
             seq_start_end = torch.stack(
                 [contexts_lengths[:-1], contexts_lengths[1:]], dim=1
             )
+
             user_type = [user_mapping[feature["user_type"]] for feature in features]
             assert len(seq_start_end) == batch_size
             return {
@@ -379,7 +390,8 @@ class RewardDataCollatorWithPadding:
             seq_start_end = torch.stack(
                 [context_lengths[:-1], context_lengths[1:]], dim=1
             )
-            user_type = [user_mapping[feature["user_type"]] for feature in features]
+            # import pdb; pdb.set_trace()
+            # user_type = [user_mapping[feature["user_type"]] for feature in features]
             assert len(seq_start_end) == batch_size
 
             return {
@@ -391,7 +403,7 @@ class RewardDataCollatorWithPadding:
                 "contexts_embeddings_rejected": contexts_embeddings_rejected,
                 "seq_start_end": seq_start_end,
                 "return_loss": True,
-                "user_type": user_type,
+                "user_type": feature["user_type"], ##user_type
             }
 
         batch_size = len(features)
@@ -522,38 +534,40 @@ if __name__ == "__main__":
         "train",
         script_args.train_dataset_size,
         data_path=script_args.data_path,
-        other_subsets=script_args.other_subsets
+        other_subsets=script_args.data_type
     )
     eval_dataset = get_hh_rlhf_dataset(
         data_subset,
         "test",
         script_args.eval_dataset_size,
         data_path=script_args.data_path,
-        other_subsets=script_args.other_subsets
+        other_subsets=script_args.data_type
     )
     print(len(train_dataset), len(eval_dataset))
-    if script_args.controversial_only:
-        train_dataset = train_dataset.filter(lambda example: example['controversial'] == True)
-        eval_dataset = eval_dataset.filter(lambda example: example['controversial'] == True)
-    elif script_args.up_sampling:
-        train_dataset = up_sample_controversial(train_dataset, seed)
+    # if script_args.controversial_only:
+    #     train_dataset = train_dataset.filter(lambda example: example['controversial'] == True)
+    #     eval_dataset = eval_dataset.filter(lambda example: example['controversial'] == True)
+    # elif script_args.up_sampling:
+    #     train_dataset = up_sample_controversial(train_dataset, seed)
 
-    if script_args.one_user:
-        train_dataset = train_dataset.filter(lambda example: example['data_subset'] == script_args.one_user)
-        eval_dataset = eval_dataset.filter(lambda example: example['data_subset'] == script_args.one_user)
+    # if script_args.one_user:
+    #     train_dataset = train_dataset.filter(lambda example: example['data_subset'] == script_args.one_user)
+    #     eval_dataset = eval_dataset.filter(lambda example: example['data_subset'] == script_args.one_user)
     reward_model_type = cast(RewardModelType, script_args.reward_model_type)
 
     # Define the training args. Needs to be done before the model is loaded if you
     # are using deepspeed.
     model_name_split = script_args.model_name.split("/")[-1]
     output_name = (
-        f"{script_args.log_dir}/{data_subset}/"
-        f"{reward_model_type}_{model_name_split}"
-        f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
+        f"{script_args.log_dir}/VPL_{data_subset}/"
+        f"{reward_model_type}_{model_name_split}_{script_args.data_type}"
+        f"_{script_args.train_dataset_size}_{script_args.learning_rate}_psoups_default"
         f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
     )
     output_name += f"_{script_args.kl_loss_weight}_{script_args.latent_dim}_{script_args.decoder_embed_dim}_seed{script_args.seed}"
-
+    log_path = f'../results/{output_name.replace("/", "_")}.log'
+    logging.basicConfig(level=logging.INFO, filename=log_path, format='%(asctime)s - %(message)s')
+    
     trainer_kwargs: Dict[str, Any] = {}
     if script_args.lr_scheduler_type == "step":
         lr_scheduler_type = "constant"
@@ -601,9 +615,9 @@ if __name__ == "__main__":
     peft_config = LoraConfig(
         task_type=TaskType.SEQ_CLS,
         inference_mode=False,
-        r=128,
-        lora_alpha=256,
-        lora_dropout=0.1,
+        r=script_args.lora_rank,
+        lora_alpha=script_args.lora_alpha,
+        lora_dropout=script_args.lora_dropout,
     )
 
     torch.set_anomaly_enabled(True)
@@ -625,6 +639,7 @@ if __name__ == "__main__":
         contexts_model.score.weight.data *= 0.01
     model = get_peft_model(model, peft_config)
     model.print_trainable_parameters()
+    print('rank', script_args.lora_rank, 'alpha', script_args.lora_alpha, 'dropout', script_args.lora_dropout)
 
     if not script_args.fixed_contexts:
         contexts_model = get_peft_model(contexts_model, peft_config)
@@ -642,8 +657,17 @@ if __name__ == "__main__":
 
     model.config.use_cache = not script_args.gradient_checkpointing
     num_proc = 24  # Can adjust to be higher if you have more processors.
+    
+    train_dataset = train_dataset.remove_columns(["chosen", 'rejected'])
+    eval_dataset = eval_dataset.remove_columns(["chosen", 'rejected'])
+    train_dataset = train_dataset.rename_column("chosen_only", "chosen")
+    train_dataset = train_dataset.rename_column("rejected_only", "rejected")
+    eval_dataset = eval_dataset.rename_column("chosen_only", "chosen")
+    eval_dataset = eval_dataset.rename_column("rejected_only", "rejected")
+    train_dataset = train_dataset.rename_column("uid", "data_subset")
+    eval_dataset = eval_dataset.rename_column("uid", "data_subset")
     original_columns = train_dataset.column_names
-
+    
     train_dataset = train_dataset.map(
         HHRLHFPreprocessor(script_args, tokenizer),
         batched=True,
@@ -651,7 +675,8 @@ if __name__ == "__main__":
         remove_columns=original_columns,
     )
     train_dataset = train_dataset.filter(
-        lambda x: x["max_lengths"] <= script_args.max_length
+        lambda x: x["max_lengths"] <= script_args.max_length,
+        num_proc=num_proc,
     )
 
     eval_dataset = eval_dataset.map(
@@ -661,7 +686,8 @@ if __name__ == "__main__":
         remove_columns=original_columns,
     )
     eval_dataset = eval_dataset.filter(
-        lambda x: x["max_lengths"] <= script_args.max_length
+        lambda x: x["max_lengths"] <= script_args.max_length,
+        num_proc=num_proc,
     )
 
     # Train the model.
@@ -697,6 +723,14 @@ if __name__ == "__main__":
     trainer.add_callback(EvaluateFirstStepCallback())
 
     trainer.train(script_args.resume_from_checkpoint)
+    
+    metrics = trainer.evaluate(eval_dataset=eval_dataset)
+    logging.info(f"Metrics for {metrics}")
+    reward_bench_datasets = load_reward_bench(tokenizer)
+    for idx, eval_dataset in enumerate(reward_bench_datasets):
+        dataset_name = eval_dataset.unique('key')
+        metrics = trainer.evaluate(eval_dataset=eval_dataset)
+        logging.info(f"Metrics for dataset {dataset_name}: {metrics['eval_accuracy']}")
 
     print("Saving last checkpoint of the model")
 

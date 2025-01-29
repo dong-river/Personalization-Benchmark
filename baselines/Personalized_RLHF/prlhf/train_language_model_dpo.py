@@ -11,10 +11,12 @@ from transformers import (
     set_seed,
 )
 from trl import DPOConfig
-from utils import load_openai_comparisons, load_psoups_comparisons, load_prism_comparisons, load_ultrafeedback_p, load_reward_bench
+from utils import load_openai_comparisons, load_psoups_comparisons, load_prism_comparisons, load_ultrafeedback_p, load_reward_bench, load_summarization_comparisons, load_personal_llm_comparisons
 from user_language_model import UserGPTNeoForCausalLM, UserGPTJForCausalLM, UserLlamaForCausalLM
 from user_dpo_trainer import UserDPOTrainer 
 
+## Example Usage
+## python prlhf/train_language_model_dpo.py --user_model individual    --model_class llama  --model_name meta-llama/Llama-2-7b-hf   --tokenizer_name meta-llama/Llama-2-7b-hf     --dataset ultrafeedback --subset controversial --learning_rate 1e-05 --downloads_data_path /home/yd358/rds/hpc-work/analysis_pers/baselines/data
 
 # Define and parse arguments.
 @dataclass
@@ -23,13 +25,13 @@ class ScriptArguments:
     The arguments for the DPO training script.
     """
     # Added arguments
-    subset: Optional[str] = field(default='default', metadata={"help": "The subset of the ultrafeedback dataset to use."}) ## default, ood, controversial, ood-controversial
+    subset: Optional[str] = field(default='controversial', metadata={"help": "The subset of the ultrafeedback dataset to use."}) ## default, ood, controversial, ood-controversial
     train_dataset_size: Optional[int] = field(
-        default=1000000,
+        default=100000,
         metadata={"help": "The size of the training dataset."},
     )
-    eval_data_size: Optional[int] = field(
-        default=1000000,
+    eval_dataset_size: Optional[int] = field(
+        default=1000,
         metadata={"help": "The size of the eval dataset."},
     )
     sanity_check: Optional[bool] = field(
@@ -78,18 +80,18 @@ class ScriptArguments:
         default=16, metadata={"help": "the number of gradient accumulation steps."})
     gradient_checkpointing: Optional[bool] = field(
         default=False, metadata={"help": "whether to use gradient checkpointing."})
-    num_train_epochs: Optional[int] = field(default=2, metadata={"help": "the number of training epochs."})
-    logging_steps: Optional[int] = field(default=10, metadata={"help": "the logging frequency."})
+    num_train_epochs: Optional[int] = field(default=1, metadata={"help": "the number of training epochs."})
+    logging_steps: Optional[int] = field(default=100, metadata={"help": "the logging frequency."})
     save_steps: Optional[int] = field(default=100, metadata={"help": "the saving frequency."})
-    eval_steps: Optional[int] = field(default=100, metadata={"help": "the evaluation frequency."})
+    eval_steps: Optional[int] = field(default=1000, metadata={"help": "the evaluation frequency."})
 
     # peft parameters
     lora_alpha: Optional[float] = field(default=16, metadata={"help": "the lora alpha parameter."})
     lora_dropout: Optional[float] = field(default=0.05, metadata={"help": "the lora dropout parameter."})
-    lora_r: Optional[int] = field(default=8, metadata={"help": "the lora r parameter."})
+    lora_rank: Optional[int] = field(default=8, metadata={"help": "the lora r parameter."})
 
     # instrumentation
-    dataset: Optional[str] = field(default="tldr", metadata={"help": "the dataset to use."})
+    dataset: Optional[str] = field(default="ultrafeedback", metadata={"help": "the dataset to use."})
     test_ratio: Optional[float] = field(default=0.1, metadata={"help": "the ratio of validation set for psoups dataset."})
     add_textual_info: Optional[bool] = field(
         default=False, metadata={"help": "whether to add textual user information to the prompt for prism dataset."})
@@ -106,7 +108,7 @@ class ScriptArguments:
     wandb_project: Optional[str] = field(default="dpo", metadata={"help": "project name on WANDB."})
     wandb_dir: Optional[str] = field(default="./wandb", metadata={"help": "directory to save WANDB log files."})
     use_downloads: Optional[bool] = field(default=False, metadata={"help": "use cached TL;DR data if set to True."})
-    downloads_data_path: Optional[str] = field(default="./data", metadata={"help": "the path to saved dataset."})
+    downloads_data_path: Optional[str] = field(default="/home/yd358/rds/hpc-work/analysis_pers/baselines/data", metadata={"help": "the path to saved dataset."})
     is_baseline: Optional[int] = field(
         default=0, metadata={"help": "assuming running P-DPO if set to 0; vanilla DPO as baseline if set to 1."})
     user_preference_file: Optional[str] = field(
@@ -122,7 +124,7 @@ class ScriptArguments:
 def main(script_args):
     # output sub-directory name
     output_path = f"{script_args.model_class}_b{script_args.beta}_a{script_args.alpha}_"\
-        f"lr{script_args.learning_rate}_wm{script_args.warmup_steps}_lr{script_args.lr_scheduler_type}_subset{script_args.subset}"
+        f"lr{script_args.learning_rate}_wm{script_args.warmup_steps}_lr{script_args.lr_scheduler_type}_dataset_{script_args.dataset}_subset{script_args.subset}_size{script_args.train_dataset_size}"
     method = "prm"
     log_path = f'../results/{method}_{output_path}.log'
     logging.basicConfig(level=logging.INFO, filename=log_path, format='%(asctime)s - %(message)s')
@@ -175,8 +177,21 @@ def main(script_args):
             sanity_check=script_args.sanity_check,
             downloads_data_path=script_args.downloads_data_path,
             seed=script_args.seed,
+            train_dataset_size=script_args.train_dataset_size,
+            eval_dataset_size=script_args.eval_dataset_size,
         )
-
+    elif script_args.dataset == "personal_llm":
+        train_dataset, eval_dataset, n_users = load_personal_llm_comparisons(
+            sep=script_args.sep, 
+            n_user_tokens=script_args.n_user_tokens,
+            max_text_length=script_args.max_text_length,
+            test_ratio=script_args.test_ratio,
+            sanity_check=script_args.sanity_check,
+            downloads_data_path=script_args.downloads_data_path,
+            seed=script_args.seed,
+            train_dataset_size=script_args.train_dataset_size,
+            eval_dataset_size=script_args.eval_dataset_size,
+        )
     elif script_args.dataset == "prism":
         train_dataset, eval_dataset, n_users = load_prism_comparisons(
             sep=script_args.sep, 
@@ -187,6 +202,8 @@ def main(script_args):
             prism_data_path=script_args.downloads_data_path,
             max_prompt_string_length=script_args.max_prompt_text_length,
             add_textual_info=script_args.add_textual_info,
+            train_dataset_size=script_args.train_dataset_size,
+            eval_dataset_size=script_args.eval_dataset_size,
         )
     elif script_args.dataset == "ultrafeedback":
         train_dataset, eval_dataset, n_users = load_ultrafeedback_p(
@@ -197,7 +214,18 @@ def main(script_args):
             seed=script_args.seed,
             subset=script_args.subset,
             train_dataset_size=script_args.train_dataset_size,
-            eval_data_size=script_args.eval_data_size,
+            eval_dataset_size=script_args.eval_dataset_size,
+        )
+    elif script_args.dataset == "summarization":
+        train_dataset, eval_dataset, n_users = load_summarization_comparisons(
+            sep=script_args.sep, 
+            n_user_tokens=script_args.n_user_tokens,
+            max_text_length=script_args.max_text_length,
+            sanity_check=script_args.sanity_check,
+            seed=script_args.seed,
+            subset=script_args.subset,
+            train_dataset_size=script_args.train_dataset_size,
+            eval_dataset_size=script_args.eval_dataset_size,
         )
     
     print(f"Loaded {script_args.dataset} dataset, train: {len(train_dataset)}, " 
@@ -230,7 +258,7 @@ def main(script_args):
         sep=script_args.sep,
         is_reference=False if script_args.is_baseline == 0 else True,
         low_cpu_mem_usage=True,
-        torch_dtype=torch.float32,
+        torch_dtype=torch.float16, ## This used to be float32
     )
     model.config.use_cache = False
 
@@ -287,7 +315,7 @@ def main(script_args):
     # we could also add other llama modules into peft target_modules
     # e.g. ["o_proj", "up_proj", "down_proj", "gate_proj", "embed_tokens",] 
     peft_config = LoraConfig(
-        r=script_args.lora_r,
+        r=script_args.lora_rank,
         lora_alpha=script_args.lora_alpha,
         lora_dropout=script_args.lora_dropout,
         target_modules=[
@@ -321,6 +349,15 @@ def main(script_args):
     print(f'length of train_dataset: {len(train_dataset)}, length of eval_dataset: {len(eval_dataset)}')
 
     pdpo_trainer.train(resume_from_checkpoint=True if script_args.resume_from_checkpoint else None)
+    
+    ## Still some bug for this
+    # # Need to add general user id or a specific is before we test on reward benchmarks
+    # reward_bench_datasets = load_reward_bench(tokenizer, n_users)
+    # for idx, eval_dataset in enumerate(reward_bench_datasets):
+    #     dataset_name = eval_dataset.unique('key')
+    #     metrics = pdpo_trainer.evaluate(eval_dataset=eval_dataset)
+    #     logging.info(f"Metrics for dataset {dataset_name}: {metrics['eval_rewards/user_each_accuracies']}")
+    
     final_ckpt_path = os.path.join(script_args.output_dir, output_path, "final_ckpt") \
         if script_args.resume_output_dir is None else os.path.join(script_args.resume_output_dir, "final_ckpt")
     eval_results = pdpo_trainer.evaluate()
@@ -328,12 +365,6 @@ def main(script_args):
         if 'rewards' in key:
             logging.info(f"{key}: {value}")
     
-    # import pdb; pdb.set_trace()
-    # reward_bench_datasets = load_reward_bench()
-    # for idx, eval_dataset in enumerate(reward_bench_datasets):
-    #     dataset_name = eval_dataset.unique('key')
-    #     metrics = pdpo_trainer.evaluate(eval_dataset=eval_dataset)
-    #     logging.info(f"Metrics for dataset {dataset_name}: {metrics['eval_rewards/user_each_accuracies']}")
     
     pdpo_trainer.save_model(final_ckpt_path)
 

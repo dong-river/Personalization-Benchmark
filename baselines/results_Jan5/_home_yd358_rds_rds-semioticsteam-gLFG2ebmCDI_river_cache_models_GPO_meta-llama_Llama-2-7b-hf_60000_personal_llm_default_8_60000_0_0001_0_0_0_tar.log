@@ -1,0 +1,2 @@
+2025-01-05 16:44:59,159 - train set accuracy: 0.5773809523809523, test set accuracy: 0.543
+2025-01-05 16:44:59,160 - Test set accuracy for each user: {tensor([3]): 0.464, tensor([1]): 0.568, tensor([7]): 0.536, tensor([5]): 0.464, tensor([8]): 0.456, tensor([6]): 0.64, tensor([2]): 0.592, tensor([4]): 0.624}

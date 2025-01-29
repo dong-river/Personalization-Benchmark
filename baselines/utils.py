@@ -1,15 +1,19 @@
 import time
 import torch
 import random
+from collections import Counter
 from datasets import Dataset, load_dataset
 from peft import PeftConfig, PeftModel
 from peft import LoraConfig, TaskType, get_peft_model
 from transformers import AutoTokenizer, AutoModelForCausalLM, AutoModelForSequenceClassification, AutoModel
 
+import cohere
 from openai import OpenAI
 openai_api_key = "sk-proj-ljlZP2CJvxi1QwzTODFnT3BlbkFJHXacxo7EXktI8bmXs7eZ"
 client = OpenAI(api_key=openai_api_key)
 
+cohere_api_key = "G5uoEstZiKTl26IT5lAEHdCYRHMb1nxzPzmiP982"
+co = cohere.Client(cohere_api_key)
 
 metric_map = {
     0: "instruction_following",
@@ -25,20 +29,259 @@ reverse_metric_map = {
     "helpfulness": 3,
 }
 
+reward_bench_map = {
+    "chat": [
+        "alpacaeval-easy",
+        "alpacaeval-length",
+        "alpacaeval-hard",
+        "mt-bench-easy",
+        "mt-bench-medium"
+    ],
+    "chat hard": [
+        "mt-bench-hard",
+        "llmbar-natural",
+        "llmbar-adver-neighbor",
+        "llmbar-adver-GPTInst",
+        "llmbar-adver-GPTOut",
+        "llmbar-adver-manual"
+    ],
+    "safety": [
+        "refusals-dangerous",
+        "refusals-offensive",
+        "xstest-should-refuse",
+        "xstest-should-respond",
+        "do not answer"
+    ],
+    "reasoning": [
+        "math-prm",
+        "hep-cpp",
+        "hep-go",
+        "hep-java",
+        "hep-js",
+        "hep-python",
+        "hep-rust"
+    ]
+}
+
+
 alphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
 
+def get_cohere_gen(prompt, system_prompt = "", model = 'command-r-plus', max_tokens = 2048, temperature = 0.7, stop_strs = None, max_depth = 3, cur_depth = 0):
+    try:
+        if type(prompt) == list:
+            ## In this case, make sure the prompt list is in the correct order: user, assistant, user, assistant, ...
+            messages = [{"role": "user", "content": p} if idx % 2 == 0 else {"role": "assistant", "content": p} for idx, p in enumerate(prompt)]
+            # response = co.chat(
+            #     model="command-r-plus",
+            #         chat_history=[
+            #         {"role": "USER", "text": "Hey, my name is Michael!"},
+            #         {"role": "CHATBOT", "text": "Hey Michael! How can I help you today?"},
+            #     ],
+            #     message="Can you tell me about LLMs?"
+            #     )
+            raise NotImplementedError
+        elif type(prompt) == str:
+            response = co.chat(
+                model=model,
+                message=prompt
+            )
+        return response.text
+    except Exception as e:
+        print(e)
+        time.sleep(30)
+        return get_cohere_gen(prompt, cur_depth=cur_depth + 1)
+
 def get_uids(script_args):
-    if script_args.data_path == "openbmb/UltraFeedback":
+    if script_args.data_type == "ultrafeedback":
         num_user = 4
         return list(range(num_user))
+    elif script_args.data_type == "psoups":
+        num_user = 6
+        return [1, 2, 3, 4, 5, 6]
+    elif script_args.data_type == "summarization":
+        num_user = 5
+        return [1, 2, 3, 4, 5]
+    elif script_args.data_type == "personal_llm":
+        num_user = 8
+        return [1, 2, 3, 4, 5, 6, 7, 8]
     else:
-        raise ValueError(f"Invalid data path: {script_args.data_path}")
-    
-def load_user_datasets(tokenizer, script_args, uid=None, return_tokenized=True, prepend_idx=False, controversial=True):
-    if script_args.data_path == "openbmb/UltraFeedback":
-        return build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx)
+        raise ValueError(f"Invalid data path: {script_args.data_type}")
 
-def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, controversial=True):
+def load_reward_bench(tokenizer):
+    def tokenize(sample):
+        required_keys = ["prompt", "chosen", "rejected"]
+        for key in required_keys:
+            if key not in sample or sample[key] is None:
+                raise ValueError(f"Missing or invalid key '{key}' in sample: {sample}")
+        sample['positive'] = tokenizer.apply_chat_template([{"content": sample["prompt"], "role": "user"}, {"content": sample["chosen"], "role": "assistant"}],
+                                                           tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        sample['negative'] = tokenizer.apply_chat_template([{"content": sample["prompt"], "role": "user"}, {"content": sample["rejected"], "role": "assistant"}],
+                                                           tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        tokenized_pos = tokenizer(sample['positive'], truncation=True)
+        tokenized_neg = tokenizer(sample['negative'], truncation=True)
+        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+        return sample
+    
+    eval_datasets = []
+    dataset = load_dataset('allenai/reward-bench', split='raw')
+    for key, value in reward_bench_map.items():
+        sub_dataset = dataset.filter(lambda x: x['subset'] in value)
+        sub_dataset = sub_dataset.map(tokenize)
+        sub_dataset = sub_dataset.map(lambda x: {"key": key})
+        eval_datasets.append(sub_dataset)
+    return eval_datasets
+    
+def load_user_datasets(tokenizer, script_args, uid=None, return_tokenized=True, prepend_idx=False, subset="default", test_subset=None):
+    if script_args.data_type == "ultrafeedback":
+        print("Loading UltraFeedback dataset")
+        assert subset in ["controversial", "ood-controversial"] ## Only controversial or ood-controversial
+        return build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx, subset)
+    elif script_args.data_type == "binarized_ultrafeedback":
+        return build_binarized_ultrafeedback_p_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx, subset)
+    elif script_args.data_type == "psoups":
+        print("Loading PSOUPS dataset")
+        assert subset in ['default', 'ood']
+        return build_psoups_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx, subset)
+    elif script_args.data_type == "summarization":
+        print("Loading Summarization dataset")
+        return build_summarization_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx, subset)
+    elif script_args.data_type == "personal_llm":
+        print("Loading PersonalLLM dataset")
+        assert subset in ['default', 'ood', 'controversial']
+        return build_psoups_dataset(tokenizer, script_args, uid, return_tokenized, prepend_idx, subset, test_subset)
+    else:
+        raise ValueError(f"Invalid data_type: {script_args.data_type}. Only accept ultrafeedback and persona")
+
+def build_summarization_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, subset="default"):
+    def tokenize(sample):                    
+        sample['positive'] = tokenizer.apply_chat_template(
+            sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        sample['negative'] = tokenizer.apply_chat_template(
+            sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        
+        tokenized_pos = tokenizer(sample['positive'], truncation=True)
+        tokenized_neg = tokenizer(sample['negative'], truncation=True)
+        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+        sample["uid"] = sample["uid"]
+        return sample
+    
+    train_dataset = load_dataset('openai/summarize_from_feedback', 'comparisons', split='train')
+    test_dataset = load_dataset('openai/summarize_from_feedback', 'comparisons', split='validation')
+
+    selected_worker_ids = Counter(train_dataset['worker']).most_common(5)
+    selected_worker_ids = [worker_id for worker_id, _ in selected_worker_ids]
+    id_map = {worker_id: i+1 for i, worker_id in enumerate(selected_worker_ids)}
+
+    train_dataset = train_dataset.filter(lambda x: x['worker'] in selected_worker_ids)
+    test_dataset = test_dataset.filter(lambda x: x['worker'] in selected_worker_ids)
+    train_dataset = train_dataset.filter(lambda x: x['info']['post'] is not None)
+    test_dataset = test_dataset.filter(lambda x: x['info']['post'] is not None)
+    
+    train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
+    test_dataset = test_dataset.select(range(min(script_args.eval_dataset_size, len(test_dataset))))
+    train_dataset = train_dataset.map(lambda x: {"chosen_only": x['summaries'][x['choice']]['text'], "rejected_only": x['summaries'][1 - x['choice']]['text'], "prompt": "Summarize the following text:\n" + x['info']['post'], "uid": id_map[x['worker']]})
+    test_dataset = test_dataset.map(lambda x: {"chosen_only": x['summaries'][x['choice']]['text'], "rejected_only": x['summaries'][1 - x['choice']]['text'], "prompt": "Summarize the following text:\n" + x['info']['post'], "uid": id_map[x['worker']]})
+    
+    if prepend_idx:
+        train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+    
+    if return_tokenized:
+        train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(tokenize, num_proc=16)
+        test_dataset = test_dataset.map(tokenize, num_proc=16)
+        
+    else:
+        train_dataset = train_dataset.map(lambda x: {"chosen": x['prompt'] + "\n" + x['chosen_only'], "rejected": x['prompt'] + "\n" + x['rejected_only']})
+        test_dataset = test_dataset.map(lambda x: {"chosen": x['prompt'] + "\n" + x['chosen_only'], "rejected": x['prompt'] + "\n" + x['rejected_only']})
+    
+    if uid is not None:
+        train_dataset = train_dataset.filter(lambda x: str(x['uid']) == str(uid))
+        test_dataset = test_dataset.filter(lambda x: str(x['uid']) == str(uid))
+    
+    train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    
+    print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
+    ## dataset has column: prompt, chosen, rejected, chosen_only, rejected_only, uid
+    return train_dataset, test_dataset
+
+
+def build_psoups_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, subset="default", test_subset=None):
+    def tokenize(sample):                    
+        sample['positive'] = tokenizer.apply_chat_template(
+            sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        sample['negative'] = tokenizer.apply_chat_template(
+            sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        
+        tokenized_pos = tokenizer(sample['positive'], truncation=True)
+        tokenized_neg = tokenizer(sample['negative'], truncation=True)
+        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+        sample["uid"] = sample["uid"]
+        return sample
+    
+    if script_args.data_type == "psoups":
+        dataset_name = "RiverDong/psoups"
+    elif script_args.data_type == "personal_llm":
+        dataset_name = 'RiverDong/Personal-LLM-DPO'
+    train_dataset = load_dataset(dataset_name, subset, split='train')
+    test_subset = test_subset if test_subset is not None else subset
+    test_dataset = load_dataset(dataset_name, test_subset, split='test')
+    
+    ## filter out rows where the chosen and rejected are the same
+    train_dataset = train_dataset.filter(lambda x: x['chosen'] != x['rejected'])
+    test_dataset = test_dataset.filter(lambda x: x['chosen'] != x['rejected'])
+    
+    train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
+    test_dataset = test_dataset.select(range(min(script_args.eval_dataset_size, len(test_dataset))))
+    
+    train_dataset = train_dataset.rename_column("chosen", "chosen_only")
+    train_dataset = train_dataset.rename_column("rejected", "rejected_only")
+    test_dataset = test_dataset.rename_column("chosen", "chosen_only")
+    test_dataset = test_dataset.rename_column("rejected", "rejected_only")
+    
+    if prepend_idx:
+        train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+        test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
+    
+    if return_tokenized:
+        train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(tokenize, num_proc=16)
+        test_dataset = test_dataset.map(tokenize, num_proc=16)
+    else:
+        train_dataset = train_dataset.map(lambda x: {"chosen": f"Human: {x['prompt']}\nAssistant: {x['chosen_only']}"})
+        train_dataset = train_dataset.map(lambda x: {"rejected": f"Human: {x['prompt']}\nAssistant: {x['rejected_only']}"})
+        test_dataset = test_dataset.map(lambda x: {"chosen": f"Human: {x['prompt']}\nAssistant: {x['chosen_only']}"})
+        test_dataset = test_dataset.map(lambda x: {"rejected": f"Human: {x['prompt']}\nAssistant: {x['rejected_only']}"})
+
+    if uid is not None:
+        train_dataset = train_dataset.filter(lambda x: str(x['uid']) == str(uid))
+        test_dataset = test_dataset.filter(lambda x: str(x['uid']) == str(uid))
+    
+    train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    
+    print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
+    ## dataset has column: prompt, chosen, rejected, chosen_only, rejected_only, uid
+    return train_dataset, test_dataset
+
+    
+def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, subset="default"):
     def tokenize(sample):                    
         sample['positive'] = tokenizer.apply_chat_template(
             sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
@@ -54,51 +297,94 @@ def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, re
         sample["uid"] = sample["uid"]
         return sample
 
-    print("Loading UltraFeedback dataset")
-    train_dataset = load_dataset("RiverDong/ultrafeedback-p", split=f'train')
-    test_dataset = load_dataset("RiverDong/ultrafeedback-p", split=f'test')
+    print("Loading UltraFeedback dataset")   
+    assert subset in ["controversial", "default", "ood", "ood-controversial"]
     
-    if controversial:
-        train_dataset = train_dataset.filter(lambda x: x['controversial'] == True)
-        test_dataset = test_dataset.filter(lambda x: x['controversial'] == True)
+    train = load_dataset('allenai/WildChat-1M')
+    
+    train_dataset = load_dataset("RiverDong/ultrafeedback-personalized", subset, split='train')
+    test_dataset = load_dataset("RiverDong/ultrafeedback-personalized", subset, split='test')
+    
+    train_dataset = train_dataset.filter(lambda x: x['attributes'] in ['helpfulness', 'honesty'])
+    test_dataset = test_dataset.filter(lambda x: x['attributes'] in ['helpfulness', 'honesty'])
     
     train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
-    test_dataset = test_dataset.select(range(min(script_args.eval_data_size, len(test_dataset))))
+    test_dataset = test_dataset.select(range(min(script_args.eval_dataset_size, len(test_dataset))))
     
     ## map the attributes to the uid
     train_dataset = train_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
     test_dataset = test_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
     ## set chosen and rejected to the correct format
-    train_dataset = train_dataset.rename_column("chosen", "chosen_only")
-    train_dataset = train_dataset.rename_column("rejected", "rejected_only")
-    test_dataset = test_dataset.rename_column("chosen", "chosen_only")
-    test_dataset = test_dataset.rename_column("rejected", "rejected_only")
+    train_dataset = train_dataset.map(lambda x: {'chosen_only':  x['chosen'].split("Assistant: ")[1].strip()})
+    train_dataset = train_dataset.map(lambda x: {'rejected_only':  x['rejected'].split("Assistant: ")[1].strip()})
+    test_dataset = test_dataset.map(lambda x: {'chosen_only':  x['chosen'].split("Assistant: ")[1].strip()})
+    test_dataset = test_dataset.map(lambda x: {'rejected_only':  x['rejected'].split("Assistant: ")[1].strip()})
     
     if prepend_idx: ## Only for id-conditioned Fine-tuning, add "User ID: {uid}" to the prompt
-        # train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
-        # test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
         train_dataset = train_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
         test_dataset = test_dataset.map(lambda x: {"prompt": f"User ID: {x['uid']}\n{x['prompt']}"})
-        
-    train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
-    train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
-    test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
-    test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
     
-
+    if return_tokenized:
+        train_dataset = train_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+        test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+        train_dataset = train_dataset.map(tokenize, num_proc=16)
+        test_dataset = test_dataset.map(tokenize, num_proc=16)
+    else:
+        train_dataset = train_dataset.map(lambda x: {"chosen": f"Human: {x['prompt']}\nAssistant: {x['chosen_only']}"})
+        train_dataset = train_dataset.map(lambda x: {"rejected": f"Human: {x['prompt']}\nAssistant: {x['rejected_only']}"})
+        test_dataset = test_dataset.map(lambda x: {"chosen": f"Human: {x['prompt']}\nAssistant: {x['chosen_only']}"})
+        test_dataset = test_dataset.map(lambda x: {"rejected": f"Human: {x['prompt']}\nAssistant: {x['rejected_only']}"})
+    
     train_dataset = train_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
     test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    
+    if uid is not None:
+        train_dataset = train_dataset.filter(lambda x: str(x['uid']) == str(uid))
+        test_dataset = test_dataset.filter(lambda x: str(x['uid']) == str(uid))
+    
+    print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
+    ## dataset has column: prompt, chosen, rejected, chosen_only, rejected_only, uid
+    return train_dataset, test_dataset
+
+def build_binarized_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True, prepend_idx=False, subset="default"):
+    def tokenize(sample):                    
+        sample['positive'] = tokenizer.apply_chat_template(
+            sample['chosen'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
+        sample['negative'] = tokenizer.apply_chat_template(
+            sample['rejected'], tokenize=False, add_generation_prompt=False).replace(tokenizer.bos_token, "")
         
+        tokenized_pos = tokenizer(sample['positive'], truncation=True)
+        tokenized_neg = tokenizer(sample['negative'], truncation=True)
+        sample["input_ids_chosen"] = tokenized_pos["input_ids"]
+        sample["attention_mask_chosen"] = tokenized_pos["attention_mask"]
+        sample["input_ids_rejected"] = tokenized_neg["input_ids"]
+        sample["attention_mask_rejected"] = tokenized_neg["attention_mask"]
+        if "uid" in sample:
+            sample["uid"] = sample["uid"]
+        return sample
+
+    train_dataset = load_dataset("argilla/ultrafeedback-binarized-preferences-cleaned", split='train')
+    test_dataset = load_dataset("RiverDong/ultrafeedback-p", subset, split='test')
+    
+    train_dataset = train_dataset.select(range(min(script_args.train_dataset_size, len(train_dataset))))
+    test_dataset = test_dataset.select(range(min(script_args.eval_dataset_size, len(test_dataset))))
+    
+    test_dataset = test_dataset.map(lambda x: {"uid": reverse_metric_map[x["attributes"]]}, remove_columns=["attributes"])
+    test_dataset = test_dataset.rename_column("chosen", "chosen_only")
+    test_dataset = test_dataset.rename_column("rejected", "rejected_only")
+    test_dataset = test_dataset.map(lambda x: {"chosen": [{"content": x["prompt"], "role": "user"}, {"content": x["chosen_only"], "role": "assistant"}]})
+    test_dataset = test_dataset.map(lambda x: {"rejected": [{"content": x["prompt"], "role": "user"}, {"content": x["rejected_only"], "role": "assistant"}]})
+    test_dataset = test_dataset.filter(lambda x: x['prompt'] is not None and x['chosen'] is not None and x['rejected'] is not None)
+    
     if return_tokenized:
         train_dataset = train_dataset.map(tokenize, num_proc=16)
         test_dataset = test_dataset.map(tokenize, num_proc=16)
-
+    
     if uid is not None:
-        train_dataset = train_dataset.filter(lambda x: x['uid'] == uid)
         test_dataset = test_dataset.filter(lambda x: x['uid'] == uid)
-    
     print("Training set: ", len(train_dataset), " test set: ", len(test_dataset))
-    
     return train_dataset, test_dataset
 
 # def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, return_tokenized=True):
@@ -119,7 +405,7 @@ def build_vanilla_ultrafeedback_p_dataset(tokenizer, script_args, uid = None, re
 
 #     print("Loading UltraFeedback dataset")
 #     data = load_dataset("openbmb/UltraFeedback", split=f'train[:{script_args.train_dataset_size}]')
-#     split = data.train_test_split(test_size=script_args.eval_data_size)
+#     split = data.train_test_split(test_size=script_args.eval_dataset_size)
 #     train_dataset, test_dataset = split['train'], split['test']
 #     train_dataset = create_text_columns_ultrafeedback(train_dataset)
 #     test_dataset = create_text_columns_ultrafeedback(test_dataset)
@@ -198,13 +484,15 @@ def load_peft_model_lm(output_path):
 
 def get_tokenizer_and_model(script_args, model_type, use_peft=True):
     tokenizer_name = script_args.model_name
+    if tokenizer_name == 'berkeley-nest/Starling-RM-7B-alpha':
+        tokenizer_name = "meta-llama/Llama-2-7b-chat-hf"
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name, use_auth_token=True, add_eos_token=False)
 
     # Need to do this for GPT2 and Llama because they don't have official pad tokens.
-    if 'gpt2' in script_args.model_name or 'llama' in script_args.model_name:
+    if 'gpt2' in script_args.model_name or 'llama' in script_args.model_name or "Mistral" in script_args.model_name or 'starling' in script_args.model_name.lower():
         tokenizer.pad_token = tokenizer.eos_token
         tokenizer.pad_token_id = tokenizer.eos_token_id
-        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        # tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         tokenizer.model_max_length = script_args.max_length
         tokenizer.padding_side = "right"
         tokenizer.truncation_side = "left"

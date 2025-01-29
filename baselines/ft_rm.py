@@ -14,7 +14,7 @@ from transformers import (
 )
 from transformers.utils import PaddingStrategy
 
-from utils import get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm
+from utils import get_tokenizer_and_model, load_user_datasets, get_uids, BestOfNSampler, get_model_gen, judge, load_peft_model_rm, load_reward_bench
 
 # Define and parse arguments.
 @dataclass
@@ -35,16 +35,29 @@ class ScriptArguments:
         metadata={"help": "The type of evaluation to perform. You can choose between 'rm' and 'lm'."},
     )
     train_dataset_size: Optional[int] = field(
-        default=64000,
+        default=100000,
         metadata={"help": "The size of the training dataset."},
     )
-    eval_data_size: Optional[int] = field(
-        default=6400,
+    eval_dataset_size: Optional[int] = field(
+        default=1000,
         metadata={"help": "The size of the eval dataset."},
     )
+    eval_model_path: Optional[str] = field(
+        default=None,
+        ### You must replace the user id with UID for ft_rm.py
+        metadata={"help": "Directly load a pre-trained model to evaluate."}, ## should be the path to the folder not the .pt file
+    )
     
-    data_path: str = field(
-        default="openbmb/UltraFeedback",
+    data_type: str = field(
+        default="ultrafeedback",
+        metadata={"help": "The dataset used for training and testing"}
+    )
+    subset: Optional[str] = field(
+        default='default', ## ood, controversial
+        metadata={"help": "The subset of the dataset to use."},
+    )
+    peft: Optional[bool] = field(
+        default="ultrafeedback", ## ultrafeedback, persona
     )
     peft: Optional[bool] = field(
         default=True,
@@ -70,7 +83,7 @@ class ScriptArguments:
         },
     )
     per_device_train_batch_size: Optional[int] = field(default=16)
-    per_device_eval_batch_size: Optional[int] = field(default=16)
+    per_device_eval_batch_size: Optional[int] = field(default=4)
     gradient_accumulation_steps: Optional[int] = field(default=32)
     learning_rate: Optional[float] = field(default=1e-4)
     weight_decay: Optional[float] = field(default=0.001)
@@ -191,26 +204,34 @@ if __name__ == "__main__":
     model_name_split = script_args.model_name.split("/")[-1]
     method = "ft_rm"
     uids = get_uids(script_args)
-    log_path = '/home/yd358/rds/hpc-work/analysis_pers/results/logfile.log'
+    
+    base_output_name = (
+        f"{script_args.log_dir}/{method}/UID/"
+        f"{model_name_split}"
+        f"_{script_args.train_dataset_size}_{script_args.learning_rate}"
+        f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}_{script_args.data_type}_{script_args.subset}"
+    )
+    log_path = f'results/{base_output_name.replace("/", "_")}.log'
     logging.basicConfig(level=logging.INFO, filename=log_path, format='%(asctime)s - %(message)s')
+    ## Controversial vs default is a special case for personal_llm
+    if script_args.data_type == 'personal_llm':
+        base_output_name = base_output_name.replace("controversial", "default")
 
     if script_args.train:
         for uid in uids:
             print(f"Training for user {uid}")
-            output_name = (
-                f"{script_args.log_dir}/{method}/{uid}/"
-                f"{model_name_split}"
-                f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-            )
-            if os.path.exists(os.path.join(output_name, 'adapter_model.safetensors')):
-                print(f"Model for user {uid} already exists. Skipping training.")
-                continue
+            logging.info(f"Training and Evaluating for user {uid}")
+            output_name = base_output_name.replace("UID", str(uid))
             
             tokenizer, model = get_tokenizer_and_model(script_args, model_type="rm", use_peft=script_args.peft)
-
-            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
+            if os.path.exists(os.path.join(output_name, 'adapter_model.safetensors')) or script_args.eval_model_path is not None:
+                output_name = script_args.eval_model_path.replace('UID', str(uid)) if script_args.eval_model_path is not None else output_name
+                model = load_peft_model_rm(output_name)
+                model.config.pad_token_id = tokenizer.pad_token_id
+                print("Using the pre-trained model")
             
+            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid, subset=script_args.subset)
+
             training_args = TrainingArguments(
                 output_dir=output_name,
                 learning_rate=script_args.learning_rate,
@@ -219,7 +240,7 @@ if __name__ == "__main__":
                 num_train_epochs=script_args.num_train_epochs,
                 weight_decay=script_args.weight_decay,
                 evaluation_strategy="steps",
-                eval_steps=0.1,
+                eval_steps=0.2,
                 save_strategy="steps",
                 save_steps=script_args.save_every_steps,
                 gradient_accumulation_steps=script_args.gradient_accumulation_steps,
@@ -251,7 +272,19 @@ if __name__ == "__main__":
                 ),
             )
             
-            trainer.train()
+            ## if not trained 
+            if not os.path.exists(os.path.join(output_name, 'adapter_model.safetensors')):
+                trainer.train()
+
+            print("Evaluating the model for user ", uid)
+            metrics = trainer.evaluate(eval_dataset=eval_dataset)
+            logging.info(f"Metrics for User {uid}: {metrics['eval_accuracy']}")
+
+            reward_bench_datasets = load_reward_bench(tokenizer)
+            for idx, eval_dataset in enumerate(reward_bench_datasets):
+                dataset_name = eval_dataset.unique('key')
+                metrics = trainer.evaluate(eval_dataset=eval_dataset)
+                logging.info(f"Metrics for dataset {dataset_name}: {metrics['eval_accuracy']}")
 
             print("Saving the model")
             os.makedirs(output_name, exist_ok=True)
@@ -269,57 +302,60 @@ if __name__ == "__main__":
             torch.cuda.empty_cache()
             gc.collect()
 
-    if script_args.eval:
-        tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
-        user_acc = {}
-        for uid in uids:
-            train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
-            print(f"Evaluating for user {uid}")
-            output_name = (
-                f"{script_args.log_dir}/{method}/{uid}/"
-                f"{model_name_split}"
-                f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-            )
-            model = load_peft_model_rm(output_name)
-            model.eval()
-            acc = []
+    # if script_args.eval:
+    #     tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
+    #     user_acc = {}
+    #     for uid in uids:
+    #         train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid, subset=script_args.subset)
+    #         print(f"Evaluating for user {uid}")
+    #         output_name = base_output_name.replace("UID", str(uid))
+    #         model = load_peft_model_rm(output_name)
+    #         model.eval()
+    #         acc = []
             
-            for sample in eval_dataset:
-                input_ids = torch.tensor(sample['input_ids_chosen']).unsqueeze(0).to('cuda')
-                attention_mask = torch.tensor(sample['attention_mask_chosen']).unsqueeze(0).to('cuda')
-                score_chosen = model(input_ids, attention_mask)[0][0].item()
-                input_ids = torch.tensor(sample['input_ids_rejected']).unsqueeze(0).to('cuda')
-                attention_mask = torch.tensor(sample['attention_mask_rejected']).unsqueeze(0).to('cuda')
-                score_rejected = model(input_ids, attention_mask)[0][0].item()
-                acc.append(score_chosen > score_rejected)
-            user_acc[uid] = np.mean(acc)
-        logging.info(f"User accuracy: {user_acc} for model {output_name}")
+    #         for sample in eval_dataset:
+    #             input_ids = torch.tensor(sample['input_ids_chosen']).unsqueeze(0).to('cuda')
+    #             attention_mask = torch.tensor(sample['attention_mask_chosen']).unsqueeze(0).to('cuda')
+    #             score_chosen = model(input_ids, attention_mask)[0][0].item()
+    #             input_ids = torch.tensor(sample['input_ids_rejected']).unsqueeze(0).to('cuda')
+    #             attention_mask = torch.tensor(sample['attention_mask_rejected']).unsqueeze(0).to('cuda')
+    #             score_rejected = model(input_ids, attention_mask)[0][0].item()
+    #             acc.append(score_chosen > score_rejected)
+    #         logging.info(f"Accuracy {np.mean(acc)} for user {uid}")
+            
+    #     for eval_dataset in reward_bench_datasets:
+    #         dataset_name = eval_dataset['key'] if 'key' in eval_dataset.column_names else 'eval_set'
+    #         acc = []
+    #         for sample in eval_dataset:
+    #             input_ids = torch.tensor(sample['input_ids_chosen']).unsqueeze(0).to('cuda')
+    #             attention_mask = torch.tensor(sample['attention_mask_chosen']).unsqueeze(0).to('cuda')
+    #             score_chosen = model(input_ids, attention_mask)[0][0].item()
+    #             input_ids = torch.tensor(sample['input_ids_rejected']).unsqueeze(0).to('cuda')
+    #             attention_mask = torch.tensor(sample['attention_mask_rejected']).unsqueeze(0).to('cuda')
+    #             score_rejected = model(input_ids, attention_mask)[0][0].item()
+    #             acc.append(score_chosen > score_rejected)
+    #         acc = np.mean(acc)
+    #         logging.info(f"accuracy: {acc} for dataset {dataset_name}")
         
-    elif script_args.eval_type == 'lm':
-            tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
-            user_win_rate = {}
-            for uid in uids:
-                print('evaluating for user', uid)
-                output_name = (
-                    f"{script_args.log_dir}/FT_RM/{uid}/"
-                    f"{model_name_split}"
-                    f"__{script_args.train_dataset_size}_{script_args.learning_rate}"
-                    f"_{script_args.lr_scheduler_type}_{script_args.num_train_epochs}"
-                )
+    # elif script_args.eval_type == 'lm':
+    #         tokenizer, gen_model = get_tokenizer_and_model(script_args, model_type='lm')
+    #         user_win_rate = {}
+    #         for uid in uids:
+    #             print('evaluating for user', uid)
+    #             output_name = base_output_name.replace("UID", str(uid))
                 
-                rm_model = load_peft_model_rm(output_name)
-                rm_model.eval()
-                win_lose_list = []
+    #             rm_model = load_peft_model_rm(output_name)
+    #             rm_model.eval()
+    #             win_lose_list = []
                 
-                train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
+    #             train_dataset, eval_dataset = load_user_datasets(tokenizer, script_args, uid)
                 
-                for i, row in enumerate(eval_dataset):
-                    BON = BestOfNSampler(gen_model, rm_model, tokenizer)
-                    p_gen = BON.best_sample(row['prompt'], N=16)
-                    gen = get_model_gen(row['prompt'], model=gen_model, tokenizer=tokenizer)
-                    better_res = judge(row['persona'], row['prompt'], p_gen, gen, judge_model='gpt-4o')
-                    win_lose_list.append(better_res == p_gen)
-                user_win_rate[uid] = np.mean(win_lose_list)
-            logging.info(f"User win rate: {user_win_rate} for model {output_name}")
+    #             for i, row in enumerate(eval_dataset):
+    #                 BON = BestOfNSampler(gen_model, rm_model, tokenizer)
+    #                 p_gen = BON.best_sample(row['prompt'], N=16)
+    #                 gen = get_model_gen(row['prompt'], model=gen_model, tokenizer=tokenizer)
+    #                 better_res = judge(row['persona'], row['prompt'], p_gen, gen, judge_model='gpt-4o')
+    #                 win_lose_list.append(better_res == p_gen)
+    #             user_win_rate[uid] = np.mean(win_lose_list)
+    #         logging.info(f"User win rate: {user_win_rate} for model {output_name}")
             
